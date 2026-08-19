@@ -75,6 +75,18 @@ public class Bany {
                 continue;
             }
 
+            if (command.equalsIgnoreCase("delete")) {
+                int taskIndex = getTaskIndex(remaining, listOfTasks);
+                if (taskIndex != -1) {
+                    Task deletedTask = listOfTasks.remove(taskIndex);
+                    System.out.println("Noted. I've removed this task:");
+                    System.out.printf("   %s%n", deletedTask);
+                    System.out.printf("Now you have %d tasks in the list.%n", listOfTasks.size());
+                    Helper.printDivider();
+                }
+                continue;
+            }
+
             if (command.equalsIgnoreCase("todo")) {
                 Task task = new ToDo(remaining);
                 listOfTasks.add(task);
@@ -150,22 +162,36 @@ public class Bany {
      * @return the selected task, or {@code null} when the task number is invalid
      */
     private static Task getTask(String number, List<Task> tasks) {
-        int taskNumber;
+        int taskIndex = getTaskIndex(number, tasks);
+        if (taskIndex == -1) {
+            return null;
+        }
+        return tasks.get(taskIndex);
+    }
 
+    /**
+     * Converts a user-provided 1-based task number into a zero-based list index.
+     *
+     * @param number task number entered by the user
+     * @param tasks tasks currently stored by the chatbot
+     * @return the zero-based index, or {@code -1} when the number is invalid
+     */
+    private static int getTaskIndex(String number, List<Task> tasks) {
+        int taskNumber;
         try {
-            taskNumber = Integer.parseInt(number);
-        } catch (Exception e) {
+            taskNumber = Integer.parseInt(number.trim());
+        } catch (NumberFormatException e) {
             System.out.println("Invalid task number!");
             Helper.printDivider();
-            return null;
+            return -1;
         }
 
         if (taskNumber < 1 || taskNumber > tasks.size()) {
             System.out.println("Invalid task number!");
             Helper.printDivider();
-            return null;
+            return -1;
         }
-        return tasks.get(taskNumber - 1);
+        return taskNumber - 1;
     }
 
     /**
