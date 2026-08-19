@@ -172,7 +172,7 @@ public class Bany {
             System.out.println("OK, I've marked this task as not done yet:");
         }
         System.out.printf("   %s%n", task);
-        Helper.printDivider();
+        Helper.printDivider(); //Some changes
     }
 
     private static void announceTask(Task task, List<Task> tasks) {
