@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Bany {
     public static void main(String[] args) {
@@ -23,40 +25,108 @@ public class Bany {
         while (true) {
             String line = scanner.nextLine();
             Helper.printDivider();
+            int firstSpace = line.indexOf(' ');
 
-            if (line.equalsIgnoreCase("bye")) {
+            String command;
+            String remaining;
+
+            if (firstSpace == -1) {
+                command = line;    // "event"
+                remaining = "";    // nothing after it
+            } else {
+                command = line.substring(0, firstSpace);
+                remaining = line.substring(firstSpace + 1);
+            }
+
+            if (command.equalsIgnoreCase("bye")) {
                 System.out.println("Bye. Hope to see you again soon!");
                 Helper.printDivider();
                 break;
             }
-            if (line.equalsIgnoreCase("list")) {
+
+            if (command.equalsIgnoreCase("list")) {
                 int count = 1;
                 System.out.println("Here are the tasks in your list:");
                 for (Task task : listOfTasks) {
-                    System.out.printf("%d.[%s] %s%n", count, task.getStatusIcon(), task.getDescription());
+                    System.out.printf("%d.%s%n", count, task);
                     count++;
                 }
                 Helper.printDivider();
                 continue;
             }
-            if (line.length() > 4 && line.substring(0, 4).equalsIgnoreCase("mark")) {
-                Task task = getTask(line, listOfTasks);
+
+            if (command.equalsIgnoreCase("mark")) {
+                Task task = getTask(remaining, listOfTasks);
                 if (task != null) {
                     updateTaskStatus(task, true);
                 }
                 continue;
             }
 
-            if (line.length() > 6 && line.substring(0, 6).equalsIgnoreCase("unmark")) {
-                Task task = getTask(line, listOfTasks);
+            if (command.equalsIgnoreCase("unmark")) {
+                Task task = getTask(remaining, listOfTasks);
                 if (task != null) {
                     updateTaskStatus(task, false);
                 }
                 continue;
             }
 
-            listOfTasks.add(new Task(line));
-            System.out.printf("added: %s%n", line);
+            if (command.equalsIgnoreCase("todo")) {
+                Task task = new ToDo(remaining);
+                listOfTasks.add(task);
+                announceTask(task, listOfTasks);
+                continue;
+            }
+            if (command.equalsIgnoreCase("deadline")) {
+                Pattern pattern = Pattern.compile(
+                        "^(.+?)\\s+/by\\s+(.+)$",
+                        Pattern.CASE_INSENSITIVE
+                );
+
+                Matcher matcher = pattern.matcher(remaining);
+                String name, by = "";
+
+                if (matcher.matches()) {
+                    name = matcher.group(1);
+                    by = matcher.group(2);
+                } else {
+                    System.out.println("Invalid format. Please try again.");
+                    Helper.printDivider();
+                    continue;
+                }
+
+                Task task = new Deadline(name, by);
+                listOfTasks.add(task);
+                announceTask(task, listOfTasks);
+                continue;
+            }
+
+            if (command.equalsIgnoreCase("event")) {
+                Pattern pattern = Pattern.compile(
+                        "^(.+?)\\s+/from\\s+(.+?)\\s+/to\\s+(.+)$",
+                        Pattern.CASE_INSENSITIVE
+                );
+
+                Matcher matcher = pattern.matcher(remaining);
+                String name, from, to = "";
+
+                if (matcher.matches()) {
+                    name = matcher.group(1);
+                    from = matcher.group(2);
+                    to = matcher.group(3);
+                } else {
+                    System.out.println("Invalid format. Please try again.");
+                    Helper.printDivider();
+                    continue;
+                }
+
+                Task task = new Event(name, from , to);
+                listOfTasks.add(task);
+                announceTask(task, listOfTasks);
+                continue;
+            }
+
+            System.out.println("Invalid Command");
             Helper.printDivider();
         }
     }
@@ -64,12 +134,21 @@ public class Bany {
     /**
      * Retrieves the task referred to in a mark or unmark command.
      *
-     * @param line command entered by the user
+     * @param number command entered by the user
      * @param tasks tasks currently stored by the chatbot
      * @return the selected task, or {@code null} when the task number is invalid
      */
-    private static Task getTask(String line, List<Task> tasks) {
-        int taskNumber = Helper.firstNumber(line);
+    private static Task getTask(String number, List<Task> tasks) {
+        int taskNumber;
+
+        try {
+            taskNumber = Integer.parseInt(number);
+        } catch (Exception e) {
+            System.out.println("Invalid task number!");
+            Helper.printDivider();
+            return null;
+        }
+
         if (taskNumber < 1 || taskNumber > tasks.size()) {
             System.out.println("Invalid task number!");
             Helper.printDivider();
@@ -92,7 +171,14 @@ public class Bany {
             task.unmark();
             System.out.println("OK, I've marked this task as not done yet:");
         }
-        System.out.printf("   [%s] %s%n", task.getStatusIcon(), task.getDescription());
+        System.out.printf("   %s%n", task);
+        Helper.printDivider();
+    }
+
+    private static void announceTask(Task task, List<Task> tasks) {
+        System.out.println("Got it. I've added this task:");
+        System.out.printf("  %s%n", task);
+        System.out.printf("Now you have %d tasks in the list.%n", tasks.size());
         Helper.printDivider();
     }
 }

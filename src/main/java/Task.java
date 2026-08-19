@@ -1,6 +1,6 @@
-public class Task {
-    protected String description;
-    protected boolean isDone;
+public abstract class Task {
+    private final String description;
+    private boolean isDone;
 
     public Task(String description) {
         this.description = description;
@@ -11,24 +11,29 @@ public class Task {
         return (isDone ? "X" : " "); // mark done task with X
     }
 
-    public int mark() {
-        if (isDone) {
-            return 1;
-        }
+    public void mark() {
         isDone = true;
-        return 0;
     }
 
-    public int unmark() {
-        if (!isDone) {
-            return 1;
-        }
+    public void unmark() {
         isDone = false;
-        return 0;
     }
 
     public String getDescription() {
         return description;
     }
-    //...
+
+    public abstract String getType();
+
+    /**
+     * Returns this task's date information, including its leading space when present.
+     *
+     * @return task date information, or an empty string for a ToDo
+     */
+    public abstract String getDateInfo();
+
+    @Override
+    public String toString() {
+        return String.format("[%s][%s] %s%s", getType(), getStatusIcon(), description, getDateInfo());
+    }
 }
