@@ -23,7 +23,11 @@ public class Bany {
         List<Task> listOfTasks = new ArrayList<>(100);
 
         while (true) {
+            if (!scanner.hasNextLine()) {
+                break;
+            }
             String line = scanner.nextLine();
+            line = line.trim();
             Helper.printDivider();
             int firstSpace = line.indexOf(' ');
 
@@ -94,6 +98,9 @@ public class Bany {
                     Helper.printDivider();
                     continue;
                 }
+                if (name.isEmpty()) {
+                    System.out.println("Invalid name. Please try again.");
+                }
 
                 Task task = new Deadline(name, by);
                 listOfTasks.add(task);
@@ -120,6 +127,10 @@ public class Bany {
                     continue;
                 }
 
+                if (name.isEmpty()) {
+                    System.out.println("Invalid name. Please try again.");
+                }
+                
                 Task task = new Event(name, from , to);
                 listOfTasks.add(task);
                 announceTask(task, listOfTasks);
