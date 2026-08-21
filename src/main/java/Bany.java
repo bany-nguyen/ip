@@ -1,221 +1,237 @@
-import java.util.ArrayList;
+import tasks.Deadline;
+import tasks.Event;
+import tasks.Task;
+import tasks.ToDo;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Bany {
-    public static void main(String[] args) {
-        String banner = """
-                ____________________________________________________________
-                 ____                      
-                | __ )  __ _ _ __  _   _ 
-                |  _ \\ / _` | '_ \\| | | |
-                | |_) | (_| | | | | |_| |
-                |____/ \\__,_|_| |_|\\__, |
-                                   |___/ 
-                Hello! I'm Bany.
-                What can I do for you?
-                ____________________________________________________________
-                """;
-        System.out.println(banner);
-        Scanner scanner = new Scanner(System.in);
-        List<Task> listOfTasks = new ArrayList<>(100);
+    private final Ui ui;  //Handles Scanner input and console output
+    private final TaskStorage taskStorage; //Data Structure that stores and manage task lists
+    private boolean running; //check whether running
 
-        while (true) {
-            if (!scanner.hasNextLine()) {
-                break;
-            }
-            String line = scanner.nextLine();
-            line = line.trim();
-            Helper.printDivider();
-            int firstSpace = line.indexOf(' ');
+    public Bany(Ui ui, TaskStorage taskStorage) {
+        this.ui = ui;
+        this.taskStorage = taskStorage;
+        this.running = true;
+    }
 
-            String command;
-            String remaining;
-
-            if (firstSpace == -1) {
-                command = line;    // "event"
-                remaining = "";    // nothing after it
-            } else {
-                command = line.substring(0, firstSpace);
-                remaining = line.substring(firstSpace + 1);
-            }
-
-            if (command.equalsIgnoreCase("bye")) {
-                System.out.println("Bye. Hope to see you again soon!");
-                Helper.printDivider();
-                break;
-            }
-
-            if (command.equalsIgnoreCase("list")) {
-                int count = 1;
-                System.out.println("Here are the tasks in your list:");
-                for (Task task : listOfTasks) {
-                    System.out.printf("%d.%s%n", count, task);
-                    count++;
-                }
-                Helper.printDivider();
-                continue;
-            }
-
-            if (command.equalsIgnoreCase("mark")) {
-                Task task = getTask(remaining, listOfTasks);
-                if (task != null) {
-                    updateTaskStatus(task, true);
-                }
-                continue;
-            }
-
-            if (command.equalsIgnoreCase("unmark")) {
-                Task task = getTask(remaining, listOfTasks);
-                if (task != null) {
-                    updateTaskStatus(task, false);
-                }
-                continue;
-            }
-
-            if (command.equalsIgnoreCase("delete")) {
-                int taskIndex = getTaskIndex(remaining, listOfTasks);
-                if (taskIndex != -1) {
-                    Task deletedTask = listOfTasks.remove(taskIndex);
-                    System.out.println("Noted. I've removed this task:");
-                    System.out.printf("   %s%n", deletedTask);
-                    System.out.printf("Now you have %d tasks in the list.%n", listOfTasks.size());
-                    Helper.printDivider();
-                }
-                continue;
-            }
-
-            if (command.equalsIgnoreCase("todo")) {
-                Task task = new ToDo(remaining);
-                listOfTasks.add(task);
-                announceTask(task, listOfTasks);
-                continue;
-            }
-            if (command.equalsIgnoreCase("deadline")) {
-                Pattern pattern = Pattern.compile(
-                        "^(.+?)\\s+/by\\s+(.+)$",
-                        Pattern.CASE_INSENSITIVE
-                );
-
-                Matcher matcher = pattern.matcher(remaining);
-                String name, by = "";
-
-                if (matcher.matches()) {
-                    name = matcher.group(1);
-                    by = matcher.group(2);
-                } else {
-                    System.out.println("Invalid format. Please try again.");
-                    Helper.printDivider();
-                    continue;
-                }
-                if (name.isEmpty()) {
-                    System.out.println("Invalid name. Please try again.");
-                }
-
-                Task task = new Deadline(name, by);
-                listOfTasks.add(task);
-                announceTask(task, listOfTasks);
-                continue;
-            }
-
-            if (command.equalsIgnoreCase("event")) {
-                Pattern pattern = Pattern.compile(
-                        "^(.+?)\\s+/from\\s+(.+?)\\s+/to\\s+(.+)$",
-                        Pattern.CASE_INSENSITIVE
-                );
-
-                Matcher matcher = pattern.matcher(remaining);
-                String name, from, to = "";
-
-                if (matcher.matches()) {
-                    name = matcher.group(1);
-                    from = matcher.group(2);
-                    to = matcher.group(3);
-                } else {
-                    System.out.println("Invalid format. Please try again.");
-                    Helper.printDivider();
-                    continue;
-                }
-
-                if (name.isEmpty()) {
-                    System.out.println("Invalid name. Please try again.");
-                }
-                
-                Task task = new Event(name, from , to);
-                listOfTasks.add(task);
-                announceTask(task, listOfTasks);
-                continue;
-            }
-
-            System.out.println("Invalid Command");
-            Helper.printDivider();
+    public void initialise() {
+        ui.showWelcome();
+        while (running && ui.hasNextCommand()) {
+            String input = ui.readCommand();
+            handleInput(input);
         }
     }
 
-    /**
-     * Retrieves the task referred to in a mark or unmark command.
-     *
-     * @param number command entered by the user
-     * @param tasks tasks currently stored by the chatbot
-     * @return the selected task, or {@code null} when the task number is invalid
-     */
-    private static Task getTask(String number, List<Task> tasks) {
-        int taskIndex = getTaskIndex(number, tasks);
-        if (taskIndex == -1) {
+    private void handleInput(String input) {
+        Map<String, String> parsedCommand;
+        try {
+            parsedCommand = Parser.parse(input);
+        } catch (IllegalArgumentException e) {
+            ui.showInvalidCommand();
+            return;
+        }
+
+        String command = parsedCommand.get("command");
+        if (CommandStorage.checkValidAllCommandWord(command)) {
+            switch (command) {
+                case "BYE":
+                    ui.showGoodbye();
+                    running = false;
+                    break;
+
+                case "LIST":
+                    listTasks();
+                    break;
+
+                case "DEADLINE", "TODO", "EVENT": {
+                    List<String> tagNames = Parser.getTagNames(input);
+                    String duplicateTag = findDuplicateCriticalTag(command, tagNames);
+                    if (duplicateTag != null) {
+                        ui.showDuplicateTag(duplicateTag);
+                        break;
+                    }
+
+                    Task task = createTask(parsedCommand);
+                    if (task != null) {
+                        if (hasTagWarning(command, tagNames)) {
+                            ui.showTagWarning();
+                        }
+                        addTask(task);
+                    }
+                    break;
+                }
+
+                case "MARK": {
+                    String desc = parsedCommand.get("description");
+
+                    if (desc == null || desc.isBlank() || !Helper.isInteger(desc)) {
+                        ui.showInvalidCommand();
+                        break;
+                    }
+
+                    int taskNo = Integer.parseInt(desc) - 1;
+                    markTask(taskNo);
+                    break;
+                }
+
+                case "UNMARK": {
+                    String desc = parsedCommand.get("description");
+                    if (desc == null || desc.isBlank() || !Helper.isInteger(desc)) {
+                        ui.showInvalidCommand();
+                        break;
+                    }
+
+                    int taskNo = Integer.parseInt(desc) - 1;
+                    unmarkTask(taskNo);
+                    break;
+                }
+
+                case "DELETE": {
+                    String desc = parsedCommand.get("description");
+                    if (desc == null || desc.isBlank() || !Helper.isInteger(desc)) {
+                        ui.showInvalidCommand();
+                        break;
+                    }
+
+                    int taskNo = Integer.parseInt(desc) - 1;
+                    deleteTask(taskNo);
+                    break;
+                }
+
+            }
+        } else {
+            String closestCommand = Helper.closestWordMatch(command);
+            ui.showInvalidCommand(closestCommand);
+        }
+    }
+
+    private String findDuplicateCriticalTag(String command, List<String> tagNames) {
+        Set<String> criticalTags = switch (command) {
+            case "DEADLINE" -> Set.of("by");
+            case "EVENT" -> Set.of("from", "to");
+            default -> Set.of();
+        };
+
+        Set<String> seenTags = new HashSet<>();
+        for (String tagName : tagNames) {
+            if (criticalTags.contains(tagName) && !seenTags.add(tagName)) {
+                return tagName;
+            }
+        }
+        return null;
+    }
+
+    private boolean hasTagWarning(String command, List<String> tagNames) {
+        List<String> expectedOrder = switch (command) {
+            case "DEADLINE" -> List.of("by");
+            case "EVENT" -> List.of("from", "to");
+            default -> List.of();
+        };
+
+        Set<String> expectedTags = Set.copyOf(expectedOrder);
+        boolean hasExtraTag = tagNames.stream()
+                .anyMatch(tagName -> !expectedTags.contains(tagName));
+        List<String> actualRequiredOrder = tagNames.stream()
+                .filter(expectedTags::contains)
+                .toList();
+        boolean hasWrongOrder = !actualRequiredOrder.equals(expectedOrder);
+
+        return hasExtraTag || hasWrongOrder;
+    }
+
+    private Task createTask(Map<String, String> parsedCommand) {
+        String type = parsedCommand.get("command");
+        String description = parsedCommand.get("description");
+
+        if (description.isBlank()) {
+            ui.showInvalidTaskDescription();
             return null;
         }
-        return tasks.get(taskIndex);
+
+        switch (type) {
+            case "TODO":
+                return new ToDo(description);
+
+            case "DEADLINE":
+                String by = parsedCommand.get("by");
+                if (by == null || by.isBlank()) {
+                    ui.showInvalidTaskInitiation();
+                    break;
+                }
+                return new Deadline(description, by);
+
+            case "EVENT":
+                String from =  parsedCommand.get("from");
+                String to = parsedCommand.get("to");
+                if (from == null || to == null || from.isBlank() || to.isBlank()) {
+                    ui.showInvalidTaskInitiation();
+                    break;
+                }
+                return new Event(description, from, to);
+        }
+        return null;
     }
 
-    /**
-     * Converts a user-provided 1-based task number into a zero-based list index.
-     *
-     * @param number task number entered by the user
-     * @param tasks tasks currently stored by the chatbot
-     * @return the zero-based index, or {@code -1} when the number is invalid
-     */
-    private static int getTaskIndex(String number, List<Task> tasks) {
-        int taskNumber;
-        try {
-            taskNumber = Integer.parseInt(number.trim());
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid task number!");
-            Helper.printDivider();
-            return -1;
+    private void addTask(Task task) {
+        if (task == null) {
+            ui.showTaskCreationFail();
+            return;
         }
 
-        if (taskNumber < 1 || taskNumber > tasks.size()) {
-            System.out.println("Invalid task number!");
-            Helper.printDivider();
-            return -1;
-        }
-        return taskNumber - 1;
+        taskStorage.addTask(task);
+        List<Task> tasks = taskStorage.getTasks();
+        ui.showAddTask(task, tasks);
     }
 
-    /**
-     * Updates a task's completion status and displays the result.
-     *
-     * @param task task whose status should be updated
-     * @param shouldMark whether the task should be marked done
-     */
-    private static void updateTaskStatus(Task task, boolean shouldMark) {
-        if (shouldMark) {
-            task.mark();
-            System.out.println("Nice! I've marked this task as done:");
-        } else {
-            task.unmark();
-            System.out.println("OK, I've marked this task as not done yet:");
-        }
-        System.out.printf("   %s%n", task);
-        Helper.printDivider(); //Some changes
+    private void listTasks() {
+        List<Task> tasks = taskStorage.getTasks();
+        ui.showList(tasks);
     }
 
-    private static void announceTask(Task task, List<Task> tasks) {
-        System.out.println("Got it. I've added this task:");
-        System.out.printf("  %s%n", task);
-        System.out.printf("Now you have %d tasks in the list.%n", tasks.size());
-        Helper.printDivider();
+    private void deleteTask(int taskNo) {
+        Task task = taskStorage.deleteTask(taskNo);
+        if  (task == null) {
+            ui.showOutOfBoundIndex("delete");
+            return;
+        }
+        List<Task> tasks = taskStorage.getTasks();
+        ui.showDeleteTask(task, tasks);
+    }
+
+    private void markTask(int taskNo) {
+        Task task = taskStorage.markTask(taskNo);
+        if (task == null) {
+            ui.showOutOfBoundIndex("mark");
+            return;
+        }
+
+        ui.showMarkTask(task);
+
+    }
+
+    private void unmarkTask(int taskNo) {
+        Task task = taskStorage.unmarkTask(taskNo);
+        if (task == null) {
+            ui.showOutOfBoundIndex("unmark");
+            return;
+        }
+
+        ui.showUnmarkTask(task);
+
+    }
+
+    public static void main(String[] args) {
+        Ui ui = new Ui(new Scanner(System.in));
+        TaskStorage taskList = new TaskStorage();
+
+        Bany bany = new Bany(ui, taskList);
+        bany.initialise();
+
     }
 }

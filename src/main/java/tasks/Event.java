@@ -1,3 +1,7 @@
+package tasks;
+
+import enums.TaskType;
+
 public class Event extends Task {
     private final String from;
     private final String to;
@@ -12,8 +16,14 @@ public class Event extends Task {
         return " (from: " + from + " to: " + to + ")";
     }
 
+    @Override
+    public String getTypeShort() {
+        return TaskType.EVENT.getTypeShort();
+    }
+
+    @Override
     public String getType() {
-        return "E";
+        return TaskType.EVENT.getType();
     }
 
 }

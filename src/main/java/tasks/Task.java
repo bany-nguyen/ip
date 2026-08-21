@@ -1,3 +1,8 @@
+package tasks;
+
+import enums.TaskStatus;
+import enums.TaskType;
+
 public abstract class Task {
     private final String description;
     private boolean isDone;
@@ -8,7 +13,8 @@ public abstract class Task {
     }
 
     public String getStatusIcon() {
-        return (isDone ? "X" : " "); // mark done task with X
+        return (isDone ? TaskStatus.DONE.getStatus()
+                : TaskStatus.NOT_DONE.getStatus()); // mark done task with X
     }
 
     public void mark() {
@@ -25,6 +31,7 @@ public abstract class Task {
 
     public abstract String getType();
 
+    public abstract String getTypeShort();
     /**
      * Returns this task's date information, including its leading space when present.
      *
@@ -34,6 +41,6 @@ public abstract class Task {
 
     @Override
     public String toString() {
-        return String.format("[%s][%s] %s%s", getType(), getStatusIcon(), description, getDateInfo());
+        return String.format("[%s][%s] %s%s", getTypeShort(), getStatusIcon(), description, getDateInfo());
     }
 }

@@ -1,3 +1,6 @@
+package tasks;
+
+import enums.TaskType;
 
 public class Deadline extends Task {
     private final String by;
@@ -10,9 +13,14 @@ public class Deadline extends Task {
     public String getDateInfo() {
         return " (by: " + by + ")";
     }
-
+    @Override
     public String getType() {
-        return "D";
+        return TaskType.DEADLINE.getType();
+    }
+
+    @Override
+    public String getTypeShort() {
+        return TaskType.DEADLINE.getTypeShort();
     }
 
 }
