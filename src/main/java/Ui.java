@@ -61,8 +61,7 @@ public class Ui {
 
     public void showTagWarning() {
         Helper.printDivider();
-        System.out.println("Warning: the command contains extra tags or tags in an unexpected order. " +
-                "The task will still be added.");
+        System.out.println("Warning: the command contains extra tags or tags in an unexpected order.\nThe task will still be added.");
 
     }
 
