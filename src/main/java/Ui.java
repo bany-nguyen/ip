@@ -33,11 +33,11 @@ public class Ui {
         Helper.printDivider();
     }
 
-    public void showAddTask(Task task, List<Task> tasks) {
+    public void showAddTask(Task task, int size) {
         Helper.printDivider();
         System.out.println("Got it. I've added this task:");
         System.out.printf("  %s%n", task);
-        System.out.printf("Now you have %d tasks in the list.%n", tasks.size());
+        System.out.printf("Now you have %d tasks in the list.%n", size);
         Helper.printDivider();
     }
 
@@ -92,11 +92,11 @@ public class Ui {
         Helper.printDivider();
     }
 
-    public void showDeleteTask(Task task, List<Task> tasks) {
+    public void showDeleteTask(Task task, int size) {
         Helper.printDivider();
         System.out.println("Noted. I've removed this task:");
         System.out.printf("   %s%n", task);
-        System.out.printf("Now you have %d tasks in the list.%n", tasks.size());
+        System.out.printf("Now you have %d tasks in the list.%n", size);
         Helper.printDivider();
     }
 

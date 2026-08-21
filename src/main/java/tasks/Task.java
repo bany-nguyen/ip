@@ -1,7 +1,6 @@
 package tasks;
 
 import enums.TaskStatus;
-import enums.TaskType;
 
 public abstract class Task {
     private final String description;

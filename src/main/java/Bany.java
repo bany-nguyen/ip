@@ -13,10 +13,12 @@ public class Bany {
     private final Ui ui;  //Handles Scanner input and console output
     private final TaskStorage taskStorage; //Data Structure that stores and manage task lists
     private boolean running; //check whether running
+    private final CommandValidator commandValidator;
 
-    public Bany(Ui ui, TaskStorage taskStorage) {
+    public Bany(Ui ui, TaskStorage taskStorage,  CommandValidator commandValidator) {
         this.ui = ui;
         this.taskStorage = taskStorage;
+        this.commandValidator = commandValidator;
         this.running = true;
     }
 
@@ -51,7 +53,7 @@ public class Bany {
 
                 case "DEADLINE", "TODO", "EVENT": {
                     List<String> tagNames = Parser.getTagNames(input);
-                    String duplicateTag = findDuplicateCriticalTag(command, tagNames);
+                    String duplicateTag = commandValidator.findDuplicateCriticalTag(command, tagNames);
                     if (duplicateTag != null) {
                         ui.showDuplicateTag(duplicateTag);
                         break;
@@ -59,7 +61,7 @@ public class Bany {
 
                     Task task = createTask(parsedCommand);
                     if (task != null) {
-                        if (hasTagWarning(command, tagNames)) {
+                        if (commandValidator.hasTagWarning(command, tagNames)) {
                             ui.showTagWarning();
                         }
                         addTask(task);
@@ -111,40 +113,6 @@ public class Bany {
         }
     }
 
-    private String findDuplicateCriticalTag(String command, List<String> tagNames) {
-        Set<String> criticalTags = switch (command) {
-            case "DEADLINE" -> Set.of("by");
-            case "EVENT" -> Set.of("from", "to");
-            default -> Set.of();
-        };
-
-        Set<String> seenTags = new HashSet<>();
-        for (String tagName : tagNames) {
-            if (criticalTags.contains(tagName) && !seenTags.add(tagName)) {
-                return tagName;
-            }
-        }
-        return null;
-    }
-
-    private boolean hasTagWarning(String command, List<String> tagNames) {
-        List<String> expectedOrder = switch (command) {
-            case "DEADLINE" -> List.of("by");
-            case "EVENT" -> List.of("from", "to");
-            default -> List.of();
-        };
-
-        Set<String> expectedTags = Set.copyOf(expectedOrder);
-        boolean hasExtraTag = tagNames.stream()
-                .anyMatch(tagName -> !expectedTags.contains(tagName));
-        List<String> actualRequiredOrder = tagNames.stream()
-                .filter(expectedTags::contains)
-                .toList();
-        boolean hasWrongOrder = !actualRequiredOrder.equals(expectedOrder);
-
-        return hasExtraTag || hasWrongOrder;
-    }
-
     private Task createTask(Map<String, String> parsedCommand) {
         String type = parsedCommand.get("command");
         String description = parsedCommand.get("description");
@@ -186,7 +154,8 @@ public class Bany {
 
         taskStorage.addTask(task);
         List<Task> tasks = taskStorage.getTasks();
-        ui.showAddTask(task, tasks);
+        int size = tasks.size();
+        ui.showAddTask(task, size);
     }
 
     private void listTasks() {
@@ -201,7 +170,8 @@ public class Bany {
             return;
         }
         List<Task> tasks = taskStorage.getTasks();
-        ui.showDeleteTask(task, tasks);
+        int size = tasks.size();
+        ui.showDeleteTask(task, size);
     }
 
     private void markTask(int taskNo) {
@@ -229,8 +199,8 @@ public class Bany {
     public static void main(String[] args) {
         Ui ui = new Ui(new Scanner(System.in));
         TaskStorage taskList = new TaskStorage();
-
-        Bany bany = new Bany(ui, taskList);
+        CommandValidator commandValidator = new CommandValidator();
+        Bany bany = new Bany(ui, taskList, commandValidator);
         bany.initialise();
 
     }
