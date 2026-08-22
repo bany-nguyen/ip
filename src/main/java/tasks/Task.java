@@ -2,21 +2,19 @@ package tasks;
 
 import enums.TaskStatus;
 
+import java.util.Objects;
+
 public abstract class Task {
-    /** The next ID assigned to a newly created task. */
-    private static int nextId = 1;
+    /** The next ID available for a newly created task. */
+    private static long nextId = 1;
 
     /** The ID of this task, unique across all task types during this run. */
     private final int id;
     private final String description;
     private boolean isDone;
 
-    public Task(String description) {
-        this(nextId, description);
-    }
-
     /**
-     * Creates a task with an existing ID when restoring it from storage.
+     * Creates a task with an explicit ID.
      *
      * @param id ID previously assigned to the task
      * @param description task description
@@ -25,10 +23,39 @@ public abstract class Task {
         if (id < 1) {
             throw new IllegalArgumentException("Task ID must be positive.");
         }
+        Objects.requireNonNull(description, "Task description cannot be null.");
+        if (description.isBlank()) {
+            throw new IllegalArgumentException("Task description cannot be blank.");
+        }
         this.id = id;
         this.description = description;
         this.isDone = false;
-        nextId = Math.max(nextId, id + 1);
+        nextId = Math.max(nextId, (long) id + 1);
+    }
+
+    /**
+     * Allocates the next globally unique task ID for a newly created task.
+     *
+     * @return a positive task ID
+     * @throws IllegalStateException if all positive integer IDs are exhausted
+     */
+    public static synchronized int allocateId() {
+        if (nextId > Integer.MAX_VALUE) {
+            throw new IllegalStateException("No task IDs are available.");
+        }
+        return (int) nextId++;
+    }
+
+    /**
+     * Resets the ID allocator after rebuilding a task list from storage.
+     *
+     * @param nextIdForNewTask ID that should be assigned to the next new task
+     */
+    public static synchronized void resetIdAllocator(long nextIdForNewTask) {
+        if (nextIdForNewTask < 1) {
+            throw new IllegalArgumentException("Next task ID must be positive.");
+        }
+        nextId = nextIdForNewTask;
     }
 
     /**

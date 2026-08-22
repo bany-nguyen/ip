@@ -6,10 +6,12 @@ import errors.InvalidTaskType;
 import utilities.CommandValidator;
 import utilities.CommandStorage;
 import utilities.Helper;
-import utilities.Parser;
+import parsers.CommandParser;
+import parsers.DateTimeParser;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -52,7 +54,7 @@ public class Bany {
     private void handleInput(String input) {
         Map<String, String> parsedCommand;
         try {
-            parsedCommand = Parser.parse(input);
+            parsedCommand = CommandParser.parse(input);
         } catch (IllegalArgumentException e) {
             ui.showInvalidCommand();
             return;
@@ -71,7 +73,13 @@ public class Bany {
                     break;
 
                 case "DEADLINE", "TODO", "EVENT": {
-                    List<String> tagNames = Parser.getTagNames(input);
+                    List<String> tagNames;
+                    try {
+                        tagNames = CommandParser.getTagNames(input);
+                    } catch (IllegalArgumentException e) {
+                        ui.showInvalidCommand();
+                        break;
+                    }
                     String duplicateTag = commandValidator.findDuplicateCriticalTag(command, tagNames);
                     if (duplicateTag != null) {
                         ui.showDuplicateTag(duplicateTag);
@@ -133,17 +141,32 @@ public class Bany {
     }
 
     private Task createTask(Map<String, String> parsedCommand) {
+        if (parsedCommand == null) {
+            ui.showInvalidCommand();
+            return null;
+        }
+
         String type = parsedCommand.get("command");
         String description = parsedCommand.get("description");
 
-        if (description.isBlank()) {
+        if (type == null || type.isBlank()) {
+            ui.showInvalidCommand();
+            return null;
+        }
+
+        if (description == null || description.isBlank()) {
             ui.showInvalidTaskDescription();
             return null;
         }
 
         switch (type) {
             case "TODO":
-                return new ToDo(description);
+                try {
+                    return new ToDo(description, Task.allocateId());
+                } catch (IllegalStateException e) {
+                    ui.showTaskCreationFail();
+                    break;
+                }
 
             case "DEADLINE":
                 String by = parsedCommand.get("by");
@@ -151,7 +174,16 @@ public class Bany {
                     ui.showInvalidTaskInitiation();
                     break;
                 }
-                return new Deadline(description, by);
+                try {
+                    LocalDateTime byDateTime = DateTimeParser.createLocalDateTime(by);
+                    return new Deadline(description, byDateTime, Task.allocateId());
+                } catch (IllegalArgumentException e) {
+                    ui.showInvalidDateTime();
+                    break;
+                } catch (IllegalStateException e) {
+                    ui.showTaskCreationFail();
+                    break;
+                }
 
             case "EVENT":
                 String from =  parsedCommand.get("from");
@@ -160,7 +192,21 @@ public class Bany {
                     ui.showInvalidTaskInitiation();
                     break;
                 }
-                return new Event(description, from, to);
+                try {
+                    LocalDateTime fromDateTime = DateTimeParser.createLocalDateTime(from);
+                    LocalDateTime toDateTime = DateTimeParser.createLocalDateTime(to);
+                    if (toDateTime.isBefore(fromDateTime)) {
+                        ui.showInvalidEventRange();
+                        break;
+                    }
+                    return new Event(description, fromDateTime, toDateTime, Task.allocateId());
+                } catch (IllegalArgumentException e) {
+                    ui.showInvalidDateTime();
+                    break;
+                } catch (IllegalStateException e) {
+                    ui.showTaskCreationFail();
+                    break;
+                }
         }
         return null;
     }
