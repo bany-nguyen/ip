@@ -12,7 +12,21 @@ public class Event extends Task {
         this.to = to;
     }
 
-    public String getDateInfo() {
+    public Event(String description, String from, String to, int id) {
+        super(id, description);
+        this.from = from;
+        this.to = to;
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
+    public String getDateString() {
         return " (from: " + from + " to: " + to + ")";
     }
 

@@ -23,10 +23,10 @@ Expected output is compared exactly after normalizing only line endings to LF. B
 2. Confirm Java 25 is active. Compile the current source once into `_temp/test-ui-classes`:
 
    ```bash
-   javac -cp commons-lang3-3.20.0/commons-lang3-3.20.0.jar -d _temp/test-ui-classes src/main/java/*.java src/main/java/tasks/*.java src/main/java/enums/*.java
+   javac -cp 'commons-lang3-3.20.0/commons-lang3-3.20.0.jar:jackson-2.21/*' -d _temp/test-ui-classes $(rg --files src/main/java -g '*.java')
    ```
 
-3. For each test case, start a **fresh** Bany process so task data from an earlier case cannot affect it. Send the listed inputs to `Bany`, capture standard output and standard error together, and compare that transcript with the case's expected output. Include the Commons Lang JAR on the runtime classpath: `java -cp _temp/test-ui-classes:commons-lang3-3.20.0/commons-lang3-3.20.0.jar Bany`.
+3. Before each independent test case, clear `data/bany.txt` so persisted tasks from an earlier case cannot affect it. If a case has a **Setup** block, apply that setup instead. Start a **fresh** Bany process for each case. Send the listed inputs to `Bany`, capture standard output and standard error together, and compare that transcript with the case's expected output. Include the Commons Lang and Jackson JARs on the runtime classpath: `java -cp _temp/test-ui-classes:commons-lang3-3.20.0/commons-lang3-3.20.0.jar:jackson-2.21/* Bany`.
 4. After every passing case, continue to the next one. If a case fails, stop immediately; do not run any later cases.
 
 Task-command tests should cover these tag rules: required tags may appear in any order; extra tags produce a warning but do not prevent task creation; duplicate critical tags (`by`, `from`, or `to`) reject the task; duplicate non-critical tags produce a warning but do not prevent task creation; and the first token must be a valid command.

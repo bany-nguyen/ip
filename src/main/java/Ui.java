@@ -1,4 +1,5 @@
 import tasks.Task;
+import utilities.Helper;
 
 import java.util.List;
 import java.util.Scanner;
@@ -130,5 +131,19 @@ public class Ui {
 
     public Boolean hasNextCommand() {
         return scanner.hasNextLine();
+    }
+
+    static class ErrorUi {
+        public static void showFileUpdateError() {
+            Helper.printDivider();
+            System.out.println("Error writing task to history file!");
+            Helper.printDivider();
+        }
+
+        public static void showFileLoadError() {
+            Helper.printDivider();
+            System.out.println("Error loading tasks from the history file!");
+            Helper.printDivider();
+        }
     }
 }

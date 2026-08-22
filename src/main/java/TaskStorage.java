@@ -5,12 +5,23 @@ import java.util.List;
 
 public class TaskStorage {
     private final List<Task> listOfTasks;
+
     public TaskStorage() {
         this.listOfTasks = new ArrayList<>(100);
     }
 
     public void addTask(Task task) {
         listOfTasks.add(task);
+    }
+
+    /**
+     * Replaces the current list with tasks loaded from storage.
+     *
+     * @param tasks tasks restored from the data file
+     */
+    public void replaceTasks(List<Task> tasks) {
+        listOfTasks.clear();
+        listOfTasks.addAll(tasks);
     }
 
     public Task getTask(int index) {
