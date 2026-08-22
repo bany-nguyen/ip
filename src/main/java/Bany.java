@@ -294,15 +294,18 @@ public class Bany {
     private void findTask(String description) {
         List<Task> matchedTasks = new ArrayList<>();
         List<Task> tasks = taskStorage.getTasks();
+
         for (Task task : tasks) {
             if (task.getDescription().contains(description)) {
                 matchedTasks.add(task);
             }
         }
+
         if  (matchedTasks.isEmpty()) {
             ui.showNoSuchTask();
             return;
         }
+
         ui.showMatchedTasks(matchedTasks);
     }
 
