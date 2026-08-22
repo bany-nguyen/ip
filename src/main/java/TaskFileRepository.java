@@ -26,7 +26,7 @@ public class TaskFileRepository {
 
     private ObjectNode toJson(Task task) {
         ObjectNode json = mapper.createObjectNode();
-        json.put("id", task.getId());
+        // Task IDs are runtime-only and are reconstructed from file order when loading.
         json.put("type", task.getType());
         json.put("description", task.getDescription());
         json.put("done", task.isDone());

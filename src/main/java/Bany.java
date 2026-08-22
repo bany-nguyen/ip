@@ -12,6 +12,7 @@ import parsers.DateTimeParser;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -130,6 +131,16 @@ public class Bany {
 
                     int taskNo = Integer.parseInt(desc) - 1;
                     deleteTask(taskNo);
+                    break;
+                }
+
+                case "FIND": {
+                    String desc = parsedCommand.get("description");
+                    if (desc == null || desc.isBlank()) {
+                        ui.showInvalidCommand();
+                        break;
+                    }
+                    findTask(desc);
                     break;
                 }
 
@@ -278,6 +289,21 @@ public class Bany {
             ui.showUnmarkTask(task);
         }
 
+    }
+
+    private void findTask(String description) {
+        List<Task> matchedTasks = new ArrayList<>();
+        List<Task> tasks = taskStorage.getTasks();
+        for (Task task : tasks) {
+            if (task.getDescription().contains(description)) {
+                matchedTasks.add(task);
+            }
+        }
+        if  (matchedTasks.isEmpty()) {
+            ui.showNoSuchTask();
+            return;
+        }
+        ui.showMatchedTasks(matchedTasks);
     }
 
     public static void main(String[] args) {

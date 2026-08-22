@@ -117,8 +117,7 @@ public class Ui {
         int count = 1;
         System.out.println("Here are the tasks in your list:");
         for (Task task : listOfTasks) {
-            System.out.printf("%d.%s%n", count, task);
-            count++;
+            System.out.printf("%d.%s%n", count++, task);
         }
         Helper.printDivider();
     }
@@ -143,6 +142,22 @@ public class Ui {
 
     public Boolean hasNextCommand() {
         return scanner.hasNextLine();
+    }
+
+    public void showNoSuchTask() {
+        Helper.printDivider();
+        System.out.println("Your query does not match any task in the current task list!");
+        Helper.printDivider();
+    }
+
+    public void showMatchedTasks(List<Task> matchedTasks) {
+        Helper.printDivider();
+        System.out.println("Here are the matching tasks in your list:");
+        int count = 1;
+        for (Task task : matchedTasks) {
+            System.out.printf("%d.%s%n", count++, task);
+        }
+        Helper.printDivider();
     }
 
     static class ErrorUi {
