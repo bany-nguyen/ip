@@ -3,7 +3,7 @@ package enums;
 public enum TaskStatus {
     DONE("X"), NOT_DONE("");
 
-    private String status;
+    private final String status;
 
     TaskStatus(String status) {
         this.status = status;

@@ -7,6 +7,10 @@ public class ToDo extends Task {
         super(description);
     }
 
+    public ToDo(String description, int id) {
+        super(id, description);
+    }
+
     @Override
     public String getType() {
         return TaskType.TODO.getType();
@@ -17,7 +21,7 @@ public class ToDo extends Task {
         return TaskType.TODO.getTypeShort();
     }
 
-    public String getDateInfo() {
+    public String getDateString() {
         return "";
     }
 }

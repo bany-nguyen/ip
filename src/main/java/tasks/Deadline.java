@@ -10,7 +10,16 @@ public class Deadline extends Task {
         this.by = by;
     }
 
-    public String getDateInfo() {
+    public Deadline(String description, String by, int id) {
+        super(id, description);
+        this.by = by;
+    }
+
+    public String getBy() {
+        return by;
+    }
+
+    public String getDateString() {
         return " (by: " + by + ")";
     }
     @Override
