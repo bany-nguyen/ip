@@ -1,7 +1,10 @@
 import tasks.Task;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 public class TaskStorage {
     private final List<Task> listOfTasks;
@@ -11,7 +14,11 @@ public class TaskStorage {
     }
 
     public void addTask(Task task) {
-        listOfTasks.add(task);
+        Task nonNullTask = Objects.requireNonNull(task, "Task cannot be null.");
+        if (listOfTasks.stream().anyMatch(existing -> existing.getId() == nonNullTask.getId())) {
+            throw new IllegalArgumentException("Task ID must be unique.");
+        }
+        listOfTasks.add(nonNullTask);
     }
 
     /**
@@ -20,6 +27,16 @@ public class TaskStorage {
      * @param tasks tasks restored from the data file
      */
     public void replaceTasks(List<Task> tasks) {
+        Objects.requireNonNull(tasks, "Task list cannot be null.");
+        Set<Integer> ids = new HashSet<>();
+        for (Task task : tasks) {
+            if (task == null) {
+                throw new IllegalArgumentException("Task list cannot contain null tasks.");
+            }
+            if (!ids.add(task.getId())) {
+                throw new IllegalArgumentException("Task IDs must be unique.");
+            }
+        }
         listOfTasks.clear();
         listOfTasks.addAll(tasks);
     }

@@ -1,4 +1,4 @@
-package utilities;
+package parsers;
 
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import java.util.List;
  * {@code command} key is uppercase, while descriptions and tag values
  * retain the user's original casing.</p>
  */
-public class Parser {
+public class CommandParser {
     /**
      * Splits a command into its command name, description, and tagged values.
      *

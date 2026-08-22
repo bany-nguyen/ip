@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class TaskFileRepository {
 
@@ -20,7 +21,7 @@ public class TaskFileRepository {
     private final ObjectMapper mapper = new ObjectMapper();
 
     public TaskFileRepository(Path path) {
-        this.path = path;
+        this.path = Objects.requireNonNull(path, "Task file path cannot be null.");
     }
 
     private ObjectNode toJson(Task task) {
@@ -63,9 +64,16 @@ public class TaskFileRepository {
      * @throws IOException if the file cannot be created or written
      */
     public void save(List<Task> tasks) throws IOException {
+        if (tasks == null) {
+            throw new IllegalArgumentException("Task list cannot be null.");
+        }
+
         ArrayNode jsonTasks = mapper.createArrayNode();
 
         for (Task task : tasks) {
+            if (task == null) {
+                throw new IllegalArgumentException("Task list cannot contain null tasks.");
+            }
             jsonTasks.add(toJson(task));
         }
 
@@ -79,17 +87,21 @@ public class TaskFileRepository {
 
     /**
      * Loads all tasks from the JSON file.
+     * Task IDs are reconstructed sequentially from the order of the saved
+     * task entries; any persisted {@code id} fields are ignored.
      *
      * @return restored tasks, or an empty list if the file does not exist
      * @throws IOException if the file is malformed or cannot be read
      */
     public List<Task> load() throws IOException {
         if (Files.notExists(path)) {
+            Task.resetIdAllocator(1);
             return List.of();
         }
 
         String content = Files.readString(path);
         if (content.isBlank()) {
+            Task.resetIdAllocator(1);
             return List.of();
         }
 
@@ -99,43 +111,71 @@ public class TaskFileRepository {
         }
 
         List<Task> tasks = new ArrayList<>();
+        long reconstructedId = 1;
         for (JsonNode json : jsonTasks) {
-            tasks.add(fromJson(json));
+            if (reconstructedId > Integer.MAX_VALUE) {
+                throw new IOException("The task file contains too many tasks.");
+            }
+            tasks.add(fromJson(json, (int) reconstructedId));
+            reconstructedId++;
         }
+        Task.resetIdAllocator(reconstructedId);
         return tasks;
     }
 
-    private Task fromJson(JsonNode json) throws IOException {
-        if (!json.hasNonNull("type") || !json.hasNonNull("description")) {
+    private Task fromJson(JsonNode json, int reconstructedId) throws IOException {
+        if (json == null || !json.isObject()) {
+            throw new IOException("Each saved task must be a JSON object.");
+        }
+
+        if (!json.hasNonNull("type") || !json.get("type").isTextual()
+                || !json.hasNonNull("description") || !json.get("description").isTextual()) {
             throw new IOException("Task is missing its type or description.");
         }
 
         String type = json.get("type").asText();
         String description = json.get("description").asText();
-        int id = json.path("id").asInt(0);
+        if (type.isBlank()) {
+            throw new IOException("Task type cannot be blank.");
+        }
+        if (description.isBlank()) {
+            throw new IOException("Task description cannot be blank.");
+        }
+        if (json.has("done") && !json.get("done").isBoolean()) {
+            throw new IOException("Task done field must be a boolean.");
+        }
 
         Task task;
         switch (type) {
             case "TODO":
-                task = id > 0 ? new ToDo(description, id) : new ToDo(description);
+                try {
+                    task = new ToDo(description, reconstructedId);
+                } catch (IllegalArgumentException e) {
+                    throw new IOException("To-do contains invalid task data.", e);
+                }
                 break;
 
             case "DEADLINE":
                 if (!json.hasNonNull("by")) {
                     throw new IOException("Deadline is missing its by field.");
                 }
-                task = id > 0
-                        ? new Deadline(description, json.get("by").asText(), id)
-                        : new Deadline(description, json.get("by").asText());
+                try {
+                    task = new Deadline(description, json.get("by").asText(), reconstructedId);
+                } catch (IllegalArgumentException e) {
+                    throw new IOException("Deadline contains an invalid date-time.", e);
+                }
                 break;
 
             case "EVENT":
                 if (!json.hasNonNull("from") || !json.hasNonNull("to")) {
                     throw new IOException("Event is missing its from or to field.");
                 }
-                task = id > 0
-                        ? new Event(description, json.get("from").asText(), json.get("to").asText(), id)
-                        : new Event(description, json.get("from").asText(), json.get("to").asText());
+                try {
+                    task = new Event(description, json.get("from").asText(),
+                            json.get("to").asText(), reconstructedId);
+                } catch (IllegalArgumentException e) {
+                    throw new IOException("Event contains an invalid date-time.", e);
+                }
                 break;
 
             default:

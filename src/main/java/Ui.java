@@ -54,6 +54,18 @@ public class Ui {
         Helper.printDivider();
     }
 
+    public void showInvalidDateTime() {
+        Helper.printDivider();
+        System.out.println("Date-time must use the format dd-MM-yyyy HH:mm!");
+        Helper.printDivider();
+    }
+
+    public void showInvalidEventRange() {
+        Helper.printDivider();
+        System.out.println("An event's end date-time cannot be before its start date-time!");
+        Helper.printDivider();
+    }
+
     public void showDuplicateTag(String tagName) {
         Helper.printDivider();
         System.out.printf("The tag /%s can only be used once!%n", tagName);
