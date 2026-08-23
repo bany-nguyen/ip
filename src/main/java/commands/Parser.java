@@ -1,0 +1,52 @@
+package commands;
+
+import parsers.CommandParser;
+import utilities.CommandStorage;
+import utilities.CommandValidator;
+
+import java.util.List;
+import java.util.Map;
+
+/** Converts parsed user input into executable command objects. */
+public class Parser {
+    private final CommandValidator validator;
+
+    /**
+     * Creates a parser with the validator used by task-creation commands.
+     *
+     * @param validator command validation rules
+     */
+    public Parser(CommandValidator validator) {
+        this.validator = validator;
+    }
+
+    /**
+     * Parses complete user input into one command object.
+     *
+     * @param input complete command entered by the user
+     * @return executable command
+     * @throws IllegalArgumentException if the input is blank or malformed
+     */
+    public Command parse(String input) {
+        Map<String, String> values = CommandParser.parse(input);
+        String commandName = values.get("command");
+
+        if (!CommandStorage.checkValidAllCommandWord(commandName)) {
+            return new InvalidCommand(utilities.Helper.closestWordMatch(commandName));
+        }
+
+        List<String> tagNames = CommandParser.getTagNames(input);
+        return switch (commandName) {
+            case "TODO", "DEADLINE", "EVENT" ->
+                    new AddCommand(values, tagNames, validator);
+            case "BYE" -> new ExitCommand();
+            case "LIST" -> new ListCommand();
+            case "MARK" -> new MarkCommand(values);
+            case "UNMARK" -> new UnmarkCommand(values);
+            case "DELETE" -> new DeleteCommand(values);
+            case "FIND" -> new FindCommand(values);
+            default -> throw new IllegalArgumentException(
+                    "Unsupported command: " + commandName);
+        };
+    }
+}
