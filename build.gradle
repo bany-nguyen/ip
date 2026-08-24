@@ -51,7 +51,7 @@ jar {
 }
 
 shadowJar {
-    archiveFileName = 'duke.jar'
+    archiveFileName = 'bany.jar'
 }
 
 run {
