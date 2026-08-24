@@ -1,6 +1,6 @@
 package commands;
 
-import parsers.CommandParser;
+import parsers.InputParser;
 import utilities.CommandStorage;
 import utilities.CommandValidator;
 
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 /** Converts parsed user input into executable command objects. */
-public class Parser {
+public class CommandParser {
     private final CommandValidator validator;
 
     /**
@@ -16,7 +16,7 @@ public class Parser {
      *
      * @param validator command validation rules
      */
-    public Parser(CommandValidator validator) {
+    public CommandParser(CommandValidator validator) {
         this.validator = validator;
     }
 
@@ -28,14 +28,14 @@ public class Parser {
      * @throws IllegalArgumentException if the input is blank or malformed
      */
     public Command parse(String input) {
-        Map<String, String> values = CommandParser.parse(input);
+        Map<String, String> values = InputParser.parse(input);
         String commandName = values.get("command");
 
         if (!CommandStorage.checkValidAllCommandWord(commandName)) {
             return new InvalidCommand(utilities.Helper.closestWordMatch(commandName));
         }
 
-        List<String> tagNames = CommandParser.getTagNames(input);
+        List<String> tagNames = InputParser.getTagNames(input);
         return switch (commandName) {
             case "TODO", "DEADLINE", "EVENT" ->
                     new AddCommand(values, tagNames, validator);

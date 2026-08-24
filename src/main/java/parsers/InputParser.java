@@ -15,7 +15,7 @@ import java.util.List;
  * {@code command} key is uppercase, while descriptions and tag values
  * retain the user's original casing.</p>
  */
-public class CommandParser {
+public class InputParser {
     /**
      * Splits a command into its command name, description, and tagged values.
      *

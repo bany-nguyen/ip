@@ -1,7 +1,7 @@
 package bany;
 
 import commands.Command;
-import commands.Parser;
+import commands.CommandParser;
 import errors.InvalidTaskType;
 import utilities.CommandValidator;
 
@@ -12,14 +12,14 @@ import java.util.Scanner;
 /**
  * Runs Bany's command-line application.
  *
- * <p>Bany owns the application lifecycle, while {@link Parser} and
+ * <p>Bany owns the application lifecycle, while {@link CommandParser} and
  * {@link Command} objects own command-specific behaviour.</p>
  */
 public class Bany {
     private final Ui ui;
     private final TaskStorage taskStorage;
     private final TaskFileRepository taskFileRepository;
-    private final Parser parser;
+    private final CommandParser commandParser;
 
     /**
      * Creates an application with its runtime dependencies.
@@ -36,7 +36,7 @@ public class Bany {
         this.ui = ui;
         this.taskStorage = taskStorage;
         this.taskFileRepository = taskFileRepository;
-        this.parser = new Parser(commandValidator);
+        this.commandParser = new CommandParser(commandValidator);
     }
 
     /**
@@ -51,7 +51,7 @@ public class Bany {
         while (!isExit && ui.hasNextCommand()) {
             try {
                 String fullCommand = ui.readCommand();
-                Command command = parser.parse(fullCommand);
+                Command command = commandParser.parse(fullCommand);
                 command.execute(taskStorage, ui, taskFileRepository);
                 isExit = command.isExit();
             } catch (IllegalArgumentException e) {

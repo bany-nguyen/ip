@@ -40,7 +40,7 @@ test {
 }
 
 application {
-    mainClass = 'Bany'
+    mainClass = 'bany.Bany'
 }
 
 jar {
