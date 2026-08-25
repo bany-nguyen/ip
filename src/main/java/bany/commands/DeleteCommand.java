@@ -1,11 +1,11 @@
 package bany.commands;
 
+import java.util.Map;
+
 import bany.TaskFileRepository;
 import bany.TaskStorage;
 import bany.Ui;
 import bany.tasks.Task;
-
-import java.util.Map;
 
 /** Deletes a numbered task from Bany's task list. */
 public class DeleteCommand extends TaskIndexCommand {

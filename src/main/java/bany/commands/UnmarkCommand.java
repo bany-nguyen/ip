@@ -1,11 +1,11 @@
 package bany.commands;
 
+import java.util.Map;
+
 import bany.TaskFileRepository;
 import bany.TaskStorage;
 import bany.Ui;
 import bany.tasks.Task;
-
-import java.util.Map;
 
 /** Marks a numbered task as not completed. */
 public class UnmarkCommand extends TaskIndexCommand {
