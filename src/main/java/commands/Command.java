@@ -15,6 +15,10 @@ import java.io.IOException;
  */
 public abstract class Command {
 
+    /** Creates a command base object for a concrete command implementation. */
+    public Command() {
+    }
+
     /**
      * Executes this command using the application's shared components.
      *
@@ -40,6 +44,7 @@ public abstract class Command {
      * Persists the current task list and displays an error if writing fails.
      *
      * @param tasks the current task list
+     * @param ui the user-interface component used for error reporting
      * @param repository the task persistence component
      * @return true if the list was saved successfully
      */

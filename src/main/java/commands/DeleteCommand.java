@@ -17,6 +17,7 @@ public class DeleteCommand extends TaskIndexCommand {
         super(values);
     }
 
+    /** Deletes the selected task, persists the updated list, and reports the result. */
     @Override
     public void execute(TaskStorage tasks, Ui ui,
                         TaskFileRepository repository) {

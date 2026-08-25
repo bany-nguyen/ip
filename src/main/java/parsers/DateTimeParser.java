@@ -17,6 +17,10 @@ public class DateTimeParser {
             DateTimeFormatter.ofPattern("dd-MM-uuuu HH:mm")
                     .withResolverStyle(ResolverStyle.STRICT);
 
+    /** Creates a date-time parser. */
+    public DateTimeParser() {
+    }
+
     /**
      * Checks whether the input is a valid date-time in the supported format.
      *
@@ -58,6 +62,13 @@ public class DateTimeParser {
         }
     }
 
+    /**
+     * Parses a date-time and enforces Bany's four-digit year range.
+     *
+     * @param input date-time text in the supported format
+     * @return parsed date-time
+     * @throws DateTimeParseException if the text or year is invalid
+     */
     private static LocalDateTime parseDateTime(String input) {
         LocalDateTime dateTime = LocalDateTime.parse(input, DATE_TIME_FORMATTER);
         if (dateTime.getYear() < 1 || dateTime.getYear() > 9999) {

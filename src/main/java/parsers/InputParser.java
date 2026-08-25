@@ -16,6 +16,10 @@ import java.util.List;
  * retain the user's original casing.</p>
  */
 public class InputParser {
+    /** Creates an input parser. */
+    public InputParser() {
+    }
+
     /**
      * Splits a command into its command name, description, and tagged values.
      *
@@ -119,6 +123,13 @@ public class InputParser {
         return tagNames;
     }
 
+    /**
+     * Adds slash-prefixed tag values to the parsed command map.
+     *
+     * @param arguments command arguments containing tags
+     * @param firstTag index of the first tag slash
+     * @param result map to which parsed tags are added
+     */
     private static void parseTags(String arguments, int firstTag,
             Map<String, String> result) {
         int tagStart = firstTag;

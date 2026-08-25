@@ -17,6 +17,7 @@ public class MarkCommand extends TaskIndexCommand {
         super(values);
     }
 
+    /** Marks the selected task as done, persists the list, and reports the result. */
     @Override
     public void execute(TaskStorage tasks, Ui ui,
                         TaskFileRepository repository) {
