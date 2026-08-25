@@ -33,22 +33,20 @@ class TaskStorageTest {
     void markTask_validIndex_marksAndReturnsTask() {
         Task markedTask = taskStorage.markTask(0);
 
-        assertAll(
-                () -> assertSame(firstTask, markedTask),
-                () -> assertTrue(firstTask.isDone()),
-                () -> assertFalse(secondTask.isDone())
-        );
+        assertAll(() -> assertSame(
+                firstTask, markedTask), () -> assertTrue(
+                        firstTask.isDone()), () -> assertFalse(
+                secondTask.isDone()));
     }
 
     @Test
     void markTask_lastValidIndex_marksLastTask() {
         Task markedTask = taskStorage.markTask(taskStorage.getSize() - 1);
 
-        assertAll(
-                () -> assertSame(secondTask, markedTask),
-                () -> assertTrue(secondTask.isDone()),
-                () -> assertFalse(firstTask.isDone())
-        );
+        assertAll(() -> assertSame(
+                secondTask, markedTask), () -> assertTrue(
+                secondTask.isDone()), () -> assertFalse(
+                        firstTask.isDone()));
     }
 
     @Test
@@ -57,24 +55,20 @@ class TaskStorageTest {
 
         Task markedTask = taskStorage.markTask(0);
 
-        assertAll(
-                () -> assertSame(firstTask, markedTask),
-                () -> assertTrue(firstTask.isDone()),
-                () -> assertEquals(2, taskStorage.getSize())
-        );
+        assertAll(() -> assertSame(
+                firstTask, markedTask), () -> assertTrue(
+                        firstTask.isDone()), () -> assertEquals(
+                                2, taskStorage.getSize()));
     }
 
     @Test
     void markTask_invalidIndex_returnsNullWithoutChangingTasks() {
         TaskStorage emptyStorage = new TaskStorage();
 
-        assertAll(
-                () -> assertNull(emptyStorage.markTask(0)),
-                () -> assertNull(taskStorage.markTask(-1)),
-                () -> assertNull(taskStorage.markTask(taskStorage.getSize())),
-                () -> assertFalse(firstTask.isDone()),
-                () -> assertFalse(secondTask.isDone()),
-                () -> assertEquals(2, taskStorage.getSize())
-        );
+        assertAll(() -> assertNull(emptyStorage.markTask(0)), () -> assertNull(
+                        taskStorage.markTask(-1)), () -> assertNull(
+                        taskStorage.markTask(taskStorage.getSize())), () -> assertFalse(
+                        firstTask.isDone()), () -> assertFalse(secondTask.isDone()), () -> assertEquals(
+                        2, taskStorage.getSize()));
     }
 }
