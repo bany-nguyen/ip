@@ -17,15 +17,31 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/** Persists and reconstructs Bany tasks in a JSON file. */
 public class TaskFileRepository {
 
+    /** File used to store the task list. */
     private final Path path;
+    /** JSON mapper used to convert task data to and from tree nodes. */
     private final ObjectMapper mapper = new ObjectMapper();
 
+    /**
+     * Creates a repository for a task file.
+     *
+     * @param path file used for persistence
+     * @throws NullPointerException if {@code path} is null
+     */
     public TaskFileRepository(Path path) {
         this.path = Objects.requireNonNull(path, "Task file path cannot be null.");
     }
 
+    /**
+     * Converts one task into the JSON representation used by the repository.
+     *
+     * @param task task to convert
+     * @return JSON object containing the task data
+     * @throws InvalidTaskType if the task type is unsupported
+     */
     private ObjectNode toJson(Task task) {
         ObjectNode json = mapper.createObjectNode();
         // Task IDs are runtime-only and are reconstructed from file order when loading.
@@ -125,6 +141,15 @@ public class TaskFileRepository {
         return tasks;
     }
 
+    /**
+     * Reconstructs one task from its saved JSON representation.
+     *
+     * @param json saved task object
+     * @param reconstructedId runtime ID assigned according to file order
+     * @return reconstructed task
+     * @throws IOException if the object is malformed or contains invalid data
+     * @throws InvalidTaskType if the saved type is unsupported
+     */
     private Task fromJson(JsonNode json, int reconstructedId) throws IOException {
         if (json == null || !json.isObject()) {
             throw new IOException("Each saved task must be a JSON object.");

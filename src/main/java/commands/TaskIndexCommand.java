@@ -9,6 +9,7 @@ import java.util.Map;
  * Base class for commands that operate on a numbered task.
  */
 public abstract class TaskIndexCommand extends Command {
+    /** Parsed command values, including the user-provided task number. */
     protected final Map<String, String> values;
 
     /**

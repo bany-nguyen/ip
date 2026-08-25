@@ -17,8 +17,11 @@ import java.util.Map;
 
 /** Creates and persists TODO, DEADLINE, and EVENT tasks. */
 public class AddCommand extends Command {
+    /** Parsed command values such as the type, description, and date tags. */
     private final Map<String, String> values;
+    /** Tag names in the order in which they appeared in the input. */
     private final List<String> tagNames;
+    /** Rules used to validate required, duplicate, and extra tags. */
     private final CommandValidator validator;
 
     /**
@@ -35,6 +38,7 @@ public class AddCommand extends Command {
         this.validator = validator;
     }
 
+    /** Creates, stores, persists, and reports the new task. */
     @Override
     public void execute(TaskStorage tasks, Ui ui,
                         TaskFileRepository repository) {
@@ -60,6 +64,7 @@ public class AddCommand extends Command {
         }
     }
 
+    /** Creates the task type requested by the parsed command. */
     private Task createTask(Ui ui) {
         String type = values.get("command");
         String description = values.get("description");
@@ -82,6 +87,7 @@ public class AddCommand extends Command {
         }
     }
 
+    /** Creates a deadline after validating its date-time value. */
     private Task createDeadline(String description, Ui ui) {
         String by = values.get("by");
         if (by == null || by.isBlank()) {
@@ -98,6 +104,7 @@ public class AddCommand extends Command {
         }
     }
 
+    /** Creates an event after validating both date-times and their order. */
     private Task createEvent(String description, Ui ui) {
         String from = values.get("from");
         String to = values.get("to");

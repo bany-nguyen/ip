@@ -8,6 +8,10 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class Helper {
 
+    /** Creates a helper utility object. */
+    public Helper() {
+    }
+
     /**
      * Prints the divider used to separate chatbot messages.
      */
@@ -15,6 +19,12 @@ public class Helper {
         System.out.println("____________________________________________________________");
     }
 
+    /**
+     * Checks whether text can be parsed as a 32-bit signed integer.
+     *
+     * @param str text to check
+     * @return {@code true} if the text represents an integer
+     */
     public static boolean isInteger(String str) {
         if (str == null || str.isEmpty()) {
             return false;

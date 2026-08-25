@@ -11,6 +11,7 @@ import java.util.Map;
 
 /** Displays tasks whose descriptions contain the search text. */
 public class FindCommand extends Command {
+    /** Parsed command values containing the search description. */
     private final Map<String, String> values;
 
     /**
@@ -22,6 +23,7 @@ public class FindCommand extends Command {
         this.values = values;
     }
 
+    /** Searches task descriptions and displays either matches or an error. */
     @Override
     public void execute(TaskStorage tasks, Ui ui,
                         TaskFileRepository repository) {

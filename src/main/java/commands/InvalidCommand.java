@@ -6,6 +6,7 @@ import bany.Ui;
 
 /** Displays an error for an unrecognised command. */
 public class InvalidCommand extends Command {
+    /** Closest recognised command to suggest, if one was found. */
     private final String suggestion;
 
     /**
@@ -17,6 +18,7 @@ public class InvalidCommand extends Command {
         this.suggestion = suggestion;
     }
 
+    /** Displays the invalid-command message and any available suggestion. */
     @Override
     public void execute(TaskStorage tasks, Ui ui,
                         TaskFileRepository repository) {
