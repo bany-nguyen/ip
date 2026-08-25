@@ -1,12 +1,12 @@
 package bany;
 
-import tasks.Task;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import bany.tasks.Task;
 
 /** Maintains the in-memory ordered list of tasks used by Bany. */
 public class TaskStorage {
@@ -21,9 +21,9 @@ public class TaskStorage {
     /**
      * Adds a task while enforcing non-null and unique task IDs.
      *
-     * @param task task to add
-     * @throws NullPointerException if {@code task} is null
-     * @throws IllegalArgumentException if another task has the same ID
+     * @param task task to add.
+     * @throws NullPointerException if {@code task} is null.
+     * @throws IllegalArgumentException if another task has the same ID.
      */
     public void addTask(Task task) {
         Task nonNullTask = Objects.requireNonNull(task, "Task cannot be null.");
@@ -36,7 +36,7 @@ public class TaskStorage {
     /**
      * Replaces the current list with tasks loaded from storage.
      *
-     * @param tasks tasks restored from the data file
+     * @param tasks tasks restored from the data file.
      */
     public void replaceTasks(List<Task> tasks) {
         Objects.requireNonNull(tasks, "Task list cannot be null.");
@@ -56,9 +56,9 @@ public class TaskStorage {
     /**
      * Returns the task at a zero-based list index.
      *
-     * @param index zero-based task index
-     * @return task at the requested index
-     * @throws IndexOutOfBoundsException if the index is outside the list
+     * @param index zero-based task index.
+     * @return task at the requested index.
+     * @throws IndexOutOfBoundsException if the index is outside the list.
      */
     public Task getTask(int index) {
         return listOfTasks.get(index);
@@ -67,9 +67,9 @@ public class TaskStorage {
     /**
      * Removes and returns the task at a zero-based list index.
      *
-     * @param index zero-based task index
-     * @return removed task
-     * @throws IndexOutOfBoundsException if the index is outside the list
+     * @param index zero-based task index.
+     * @return removed task.
+     * @throws IndexOutOfBoundsException if the index is outside the list.
      */
     public Task removeTask(int index) {
         return listOfTasks.remove(index);
@@ -78,7 +78,7 @@ public class TaskStorage {
     /**
      * Returns the number of stored tasks.
      *
-     * @return current task count
+     * @return current task count.
      */
     public int getSize() {
         return listOfTasks.size();
@@ -87,7 +87,7 @@ public class TaskStorage {
     /**
      * Returns an immutable snapshot of the stored tasks.
      *
-     * @return tasks in display order
+     * @return tasks in display order.
      */
     public List<Task> getTasks() {
         return List.copyOf(listOfTasks);
@@ -96,8 +96,8 @@ public class TaskStorage {
     /**
      * Marks a task at a zero-based index as done.
      *
-     * @param taskNo zero-based task index
-     * @return the marked task, or {@code null} if the index is invalid
+     * @param taskNo zero-based task index.
+     * @return the marked task, or {@code null} if the index is invalid.
      */
     public Task markTask(int taskNo) {
         if (taskNo < 0 || taskNo >= getSize()) {
@@ -111,8 +111,8 @@ public class TaskStorage {
     /**
      * Marks a task at a zero-based index as not done.
      *
-     * @param taskNo zero-based task index
-     * @return the unmarked task, or {@code null} if the index is invalid
+     * @param taskNo zero-based task index.
+     * @return the unmarked task, or {@code null} if the index is invalid.
      */
     public Task unmarkTask(int taskNo) {
         if (taskNo < 0 || taskNo >= getSize()) {
@@ -126,8 +126,8 @@ public class TaskStorage {
     /**
      * Deletes a task at a zero-based index.
      *
-     * @param taskNo zero-based task index
-     * @return the deleted task, or {@code null} if the index is invalid
+     * @param taskNo zero-based task index.
+     * @return the deleted task, or {@code null} if the index is invalid.
      */
     public Task deleteTask(int taskNo) {
         if (taskNo < 0 || taskNo >= getSize()) {

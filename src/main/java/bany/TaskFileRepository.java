@@ -1,21 +1,22 @@
 package bany;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import errors.InvalidTaskType;
-import tasks.Deadline;
-import tasks.Event;
-import tasks.Task;
-import tasks.ToDo;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import bany.errors.InvalidTaskType;
+import bany.tasks.Deadline;
+import bany.tasks.Event;
+import bany.tasks.Task;
+import bany.tasks.ToDo;
 
 /** Persists and reconstructs Bany tasks in a JSON file. */
 public class TaskFileRepository {
@@ -28,8 +29,8 @@ public class TaskFileRepository {
     /**
      * Creates a repository for a task file.
      *
-     * @param path file used for persistence
-     * @throws NullPointerException if {@code path} is null
+     * @param path file used for persistence.
+     * @throws NullPointerException if {@code path} is null.
      */
     public TaskFileRepository(Path path) {
         this.path = Objects.requireNonNull(path, "Task file path cannot be null.");
@@ -38,9 +39,9 @@ public class TaskFileRepository {
     /**
      * Converts one task into the JSON representation used by the repository.
      *
-     * @param task task to convert
-     * @return JSON object containing the task data
-     * @throws InvalidTaskType if the task type is unsupported
+     * @param task task to convert.
+     * @return JSON object containing the task data.
+     * @throws InvalidTaskType if the task type is unsupported.
      */
     private ObjectNode toJson(Task task) {
         ObjectNode json = mapper.createObjectNode();
@@ -49,27 +50,19 @@ public class TaskFileRepository {
         json.put("description", task.getDescription());
         json.put("done", task.isDone());
         switch (task.getType()) {
-            case "TODO": {
-                break;
-            }
-
-            case "DEADLINE": {
-                Deadline deadline = (Deadline) task;
-                json.put("by", deadline.getBy());
-                break;
-            }
-
-            case "EVENT": {
-                Event event = (Event) task;
-                json.put("from", event.getFrom());
-                json.put("to", event.getTo());
-                break;
-            }
-
-            default: {
-                throw new InvalidTaskType("Unknown task type!");
-            }
-
+        case "TODO":
+            break;
+        case "DEADLINE":
+            Deadline deadline = (Deadline) task;
+            json.put("by", deadline.getBy());
+            break;
+        case "EVENT":
+            Event event = (Event) task;
+            json.put("from", event.getFrom());
+            json.put("to", event.getTo());
+            break;
+        default:
+            throw new InvalidTaskType("Unknown task type!");
         }
 
         return json;
@@ -78,8 +71,8 @@ public class TaskFileRepository {
     /**
      * Saves the complete current task list as one JSON array.
      *
-     * @param tasks tasks that should be persisted
-     * @throws IOException if the file cannot be created or written
+     * @param tasks tasks that should be persisted.
+     * @throws IOException if the file cannot be created or written.
      */
     public void save(List<Task> tasks) throws IOException {
         if (tasks == null) {
@@ -108,8 +101,8 @@ public class TaskFileRepository {
      * Task IDs are reconstructed sequentially from the order of the saved
      * task entries; any persisted {@code id} fields are ignored.
      *
-     * @return restored tasks, or an empty list if the file does not exist
-     * @throws IOException if the file is malformed or cannot be read
+     * @return restored tasks, or an empty list if the file does not exist.
+     * @throws IOException if the file is malformed or cannot be read.
      */
     public List<Task> load() throws IOException {
         if (Files.notExists(path)) {
@@ -144,11 +137,11 @@ public class TaskFileRepository {
     /**
      * Reconstructs one task from its saved JSON representation.
      *
-     * @param json saved task object
-     * @param reconstructedId runtime ID assigned according to file order
-     * @return reconstructed task
-     * @throws IOException if the object is malformed or contains invalid data
-     * @throws InvalidTaskType if the saved type is unsupported
+     * @param json saved task object.
+     * @param reconstructedId runtime ID assigned according to file order.
+     * @return reconstructed task.
+     * @throws IOException if the object is malformed or contains invalid data.
+     * @throws InvalidTaskType if the saved type is unsupported.
      */
     private Task fromJson(JsonNode json, int reconstructedId) throws IOException {
         if (json == null || !json.isObject()) {
@@ -174,39 +167,36 @@ public class TaskFileRepository {
 
         Task task;
         switch (type) {
-            case "TODO":
-                try {
-                    task = new ToDo(description, reconstructedId);
-                } catch (IllegalArgumentException e) {
-                    throw new IOException("To-do contains invalid task data.", e);
-                }
-                break;
-
-            case "DEADLINE":
-                if (!json.hasNonNull("by")) {
-                    throw new IOException("Deadline is missing its by field.");
-                }
-                try {
-                    task = new Deadline(description, json.get("by").asText(), reconstructedId);
-                } catch (IllegalArgumentException e) {
-                    throw new IOException("Deadline contains an invalid date-time.", e);
-                }
-                break;
-
-            case "EVENT":
-                if (!json.hasNonNull("from") || !json.hasNonNull("to")) {
-                    throw new IOException("Event is missing its from or to field.");
-                }
-                try {
-                    task = new Event(description, json.get("from").asText(),
-                            json.get("to").asText(), reconstructedId);
-                } catch (IllegalArgumentException e) {
-                    throw new IOException("Event contains an invalid date-time.", e);
-                }
-                break;
-
-            default:
-                throw new InvalidTaskType("Unknown task type: " + type);
+        case "TODO":
+            try {
+                task = new ToDo(description, reconstructedId);
+            } catch (IllegalArgumentException e) {
+                throw new IOException("To-do contains invalid task data.", e);
+            }
+            break;
+        case "DEADLINE":
+            if (!json.hasNonNull("by")) {
+                throw new IOException("Deadline is missing its by field.");
+            }
+            try {
+                task = new Deadline(description, json.get("by").asText(), reconstructedId);
+            } catch (IllegalArgumentException e) {
+                throw new IOException("Deadline contains an invalid date-time.", e);
+            }
+            break;
+        case "EVENT":
+            if (!json.hasNonNull("from") || !json.hasNonNull("to")) {
+                throw new IOException("Event is missing its from or to field.");
+            }
+            try {
+                task = new Event(description, json.get("from").asText(),
+                        json.get("to").asText(), reconstructedId);
+            } catch (IllegalArgumentException e) {
+                throw new IOException("Event contains an invalid date-time.", e);
+            }
+            break;
+        default:
+            throw new InvalidTaskType("Unknown task type: " + type);
         }
 
         if (json.path("done").asBoolean(false)) {

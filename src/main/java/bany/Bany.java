@@ -1,19 +1,19 @@
 package bany;
 
-import commands.Command;
-import commands.CommandParser;
-import errors.InvalidTaskType;
-import utilities.CommandValidator;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Scanner;
+
+import bany.commands.Command;
+import bany.commands.CommandParser;
+import bany.errors.InvalidTaskType;
+import bany.utilities.CommandValidator;
 
 /**
  * Runs Bany's command-line application.
  *
  * <p>Bany owns the application lifecycle, while {@link CommandParser} and
- * {@link Command} objects own command-specific behaviour.</p>
+ * {@link Command} objects own command-specific behavior.</p>
  */
 public class Bany {
     private final Ui ui;
@@ -24,10 +24,10 @@ public class Bany {
     /**
      * Creates an application with its runtime dependencies.
      *
-     * @param ui user-interface component
-     * @param taskStorage in-memory task storage
-     * @param commandValidator command validation rules
-     * @param taskFileRepository task persistence component
+     * @param ui user-interface component.
+     * @param taskStorage in-memory task storage.
+     * @param commandValidator command validation rules.
+     * @param taskFileRepository task persistence component.
      */
     public Bany(Ui ui,
                 TaskStorage taskStorage,
@@ -81,7 +81,7 @@ public class Bany {
     /**
      * Starts Bany using standard input and the default data file.
      *
-     * @param args command-line arguments, currently unused
+     * @param args command-line arguments, currently unused.
      */
     public static void main(String[] args) {
         Ui ui = new Ui(new Scanner(System.in));

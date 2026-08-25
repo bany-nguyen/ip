@@ -1,10 +1,10 @@
 package bany;
 
-import tasks.Task;
-import utilities.Helper;
-
 import java.util.List;
 import java.util.Scanner;
+
+import bany.tasks.Task;
+import bany.utilities.Helper;
 
 /** Handles all user-facing input and output for Bany. */
 public class Ui {
@@ -15,7 +15,7 @@ public class Ui {
     /**
      * Creates a user interface backed by the given input scanner.
      *
-     * @param scanner source from which user commands are read
+     * @param scanner source from which user commands are read.
      */
     public Ui(Scanner scanner) {
         this.scanner = scanner;
@@ -48,8 +48,8 @@ public class Ui {
     /**
      * Displays confirmation after a task is added.
      *
-     * @param task task that was added
-     * @param size number of tasks currently stored
+     * @param task task that was added.
+     * @param size number of tasks currently stored.
      */
     public void showAddTask(Task task, int size) {
         Helper.printDivider();
@@ -90,7 +90,7 @@ public class Ui {
     /**
      * Displays an error for a repeated critical tag.
      *
-     * @param tagName repeated tag name
+     * @param tagName repeated tag name.
      */
     public void showDuplicateTag(String tagName) {
         Helper.printDivider();
@@ -101,8 +101,8 @@ public class Ui {
     /** Displays a warning when task tags are extra or out of order. */
     public void showTagWarning() {
         Helper.printDivider();
-        System.out.println("Warning: the command contains extra tags or tags in an unexpected order.\nThe task will still be added.");
-
+        System.out.println("Warning: the command contains extra tags or tags in an unexpected order.\n"
+                + "The task will still be added.");
     }
 
     /** Displays an error when a task cannot be created. */
@@ -115,7 +115,7 @@ public class Ui {
     /**
      * Displays an error for a task index outside the current task list.
      *
-     * @param type action that was attempted
+     * @param type action that was attempted.
      */
     public void showOutOfBoundIndex(String type) {
         Helper.printDivider();
@@ -126,7 +126,7 @@ public class Ui {
     /**
      * Displays confirmation after a task is marked as done.
      *
-     * @param task task that was marked
+     * @param task task that was marked.
      */
     public void showMarkTask(Task task) {
         Helper.printDivider();
@@ -138,7 +138,7 @@ public class Ui {
     /**
      * Displays confirmation after a task is marked as not done.
      *
-     * @param task task that was unmarked
+     * @param task task that was unmarked.
      */
     public void showUnmarkTask(Task task) {
         Helper.printDivider();
@@ -150,8 +150,8 @@ public class Ui {
     /**
      * Displays confirmation after a task is deleted.
      *
-     * @param task task that was deleted
-     * @param size number of tasks remaining
+     * @param task task that was deleted.
+     * @param size number of tasks remaining.
      */
     public void showDeleteTask(Task task, int size) {
         Helper.printDivider();
@@ -164,7 +164,7 @@ public class Ui {
     /**
      * Displays all tasks in their current storage order.
      *
-     * @param listOfTasks tasks to display
+     * @param listOfTasks tasks to display.
      */
     public void showList(List<Task> listOfTasks) {
         Helper.printDivider();
@@ -185,7 +185,7 @@ public class Ui {
     /**
      * Displays an invalid-command message with an optional suggestion.
      *
-     * @param closestCommand closest recognised command, or {@code null}
+     * @param closestCommand closest recognized command, or {@code null}.
      */
     public void showInvalidCommand(String closestCommand) {
         if (closestCommand == null) {
@@ -196,10 +196,11 @@ public class Ui {
         System.out.printf("Command not found. Do you mean %s?%n", closestCommand);
         Helper.printDivider();
     }
+
     /**
      * Reads the next command from the input stream.
      *
-     * @return the next command entered by the user
+     * @return the next command entered by the user.
      */
     public String readCommand() {
         return scanner.nextLine();
@@ -208,7 +209,7 @@ public class Ui {
     /**
      * Checks whether another command is available.
      *
-     * @return {@code true} if another input line exists
+     * @return {@code true} if another input line exists.
      */
     public Boolean hasNextCommand() {
         return scanner.hasNextLine();
@@ -224,7 +225,7 @@ public class Ui {
     /**
      * Displays tasks matching a search query.
      *
-     * @param matchedTasks tasks that matched the query
+     * @param matchedTasks tasks that matched the query.
      */
     public void showMatchedTasks(List<Task> matchedTasks) {
         Helper.printDivider();
