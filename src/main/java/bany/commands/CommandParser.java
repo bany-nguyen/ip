@@ -39,7 +39,7 @@ public class CommandParser {
         List<String> tagNames = InputParser.getTagNames(input);
         return switch (commandName) {
             case "TODO", "DEADLINE", "EVENT" ->
-                    new AddCommand(values, tagNames, validator);
+                new AddCommand(values, tagNames, validator);
             case "BYE" -> new ExitCommand();
             case "LIST" -> new ListCommand();
             case "MARK" -> new MarkCommand(values);

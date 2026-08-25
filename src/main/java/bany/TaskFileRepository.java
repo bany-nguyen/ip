@@ -50,19 +50,19 @@ public class TaskFileRepository {
         json.put("description", task.getDescription());
         json.put("done", task.isDone());
         switch (task.getType()) {
-        case "TODO":
-            break;
-        case "DEADLINE":
-            Deadline deadline = (Deadline) task;
-            json.put("by", deadline.getBy());
-            break;
-        case "EVENT":
-            Event event = (Event) task;
-            json.put("from", event.getFrom());
-            json.put("to", event.getTo());
-            break;
-        default:
-            throw new InvalidTaskType("Unknown task type!");
+            case "TODO":
+                break;
+            case "DEADLINE":
+                Deadline deadline = (Deadline) task;
+                json.put("by", deadline.getBy());
+                break;
+            case "EVENT":
+                Event event = (Event) task;
+                json.put("from", event.getFrom());
+                json.put("to", event.getTo());
+                break;
+            default:
+                throw new InvalidTaskType("Unknown task type!");
         }
 
         return json;
@@ -167,36 +167,36 @@ public class TaskFileRepository {
 
         Task task;
         switch (type) {
-        case "TODO":
-            try {
-                task = new ToDo(description, reconstructedId);
-            } catch (IllegalArgumentException e) {
-                throw new IOException("To-do contains invalid task data.", e);
-            }
-            break;
-        case "DEADLINE":
-            if (!json.hasNonNull("by")) {
-                throw new IOException("Deadline is missing its by field.");
-            }
-            try {
-                task = new Deadline(description, json.get("by").asText(), reconstructedId);
-            } catch (IllegalArgumentException e) {
-                throw new IOException("Deadline contains an invalid date-time.", e);
-            }
-            break;
-        case "EVENT":
-            if (!json.hasNonNull("from") || !json.hasNonNull("to")) {
-                throw new IOException("Event is missing its from or to field.");
-            }
-            try {
-                task = new Event(description, json.get("from").asText(),
-                        json.get("to").asText(), reconstructedId);
-            } catch (IllegalArgumentException e) {
-                throw new IOException("Event contains an invalid date-time.", e);
-            }
-            break;
-        default:
-            throw new InvalidTaskType("Unknown task type: " + type);
+            case "TODO":
+                try {
+                    task = new ToDo(description, reconstructedId);
+                } catch (IllegalArgumentException e) {
+                    throw new IOException("To-do contains invalid task data.", e);
+                }
+                break;
+            case "DEADLINE":
+                if (!json.hasNonNull("by")) {
+                    throw new IOException("Deadline is missing its by field.");
+                }
+                try {
+                    task = new Deadline(description, json.get("by").asText(), reconstructedId);
+                } catch (IllegalArgumentException e) {
+                    throw new IOException("Deadline contains an invalid date-time.", e);
+                }
+                break;
+            case "EVENT":
+                if (!json.hasNonNull("from") || !json.hasNonNull("to")) {
+                    throw new IOException("Event is missing its from or to field.");
+                }
+                try {
+                    task = new Event(description, json.get("from").asText(),
+                            json.get("to").asText(), reconstructedId);
+                } catch (IllegalArgumentException e) {
+                    throw new IOException("Event contains an invalid date-time.", e);
+                }
+                break;
+            default:
+                throw new InvalidTaskType("Unknown task type: " + type);
         }
 
         if (json.path("done").asBoolean(false)) {
