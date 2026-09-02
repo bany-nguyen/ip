@@ -55,28 +55,30 @@ public class AddCommand extends Command {
                     false
             );
         }
-        Task task = createTask(responder);
-        if (task == null) {
+        TaskCreationResult creationResult = createTask(responder);
+        if (!creationResult.isSuccessful()) {
             return new CommandResult(
-                    responder.respondInvalidTaskDescription(),
+                    creationResult.validationMessage(),
                     false
             );
         }
+        Task task = creationResult.task();
 
-        if (validator.hasTagWarning(type, tagNames)) {
-            return new CommandResult(
-                    responder.respondTagWarning(),
-                    false
-            );
-        }
+        boolean hasTagWarning = validator.hasTagWarning(type, tagNames);
         tasks.addTask(task);
         try {
             saveTasks(tasks, responder, repository);
+            String response = responder.respondAddTask(task, tasks.getSize());
+            if (hasTagWarning) {
+                response = responder.respondTagWarning() + System.lineSeparator()
+                        + System.lineSeparator() + response;
+            }
             return new CommandResult(
-                    responder.respondAddTask(task, tasks.getSize()),
+                    response,
                     false
             );
         } catch (IOException e) {
+            tasks.removeTask(tasks.getSize() - 1);
             return new CommandResult(
                     Responder.ErrorResponder.respondFileUpdateError(),
                     false
@@ -88,19 +90,18 @@ public class AddCommand extends Command {
      * Creates the task type requested by the parsed command.
      *
      * @param responder response builder used while validating task details.
-     * @return created task, or {@code null} when its details are invalid.
+     * @return a complete task or the user-facing validation message that prevents creation.
      */
-    private Task createTask(Responder responder) {
+    private TaskCreationResult createTask(Responder responder) {
         String type = values.get("command");
         String description = values.get("description");
 
         if (description == null || description.isBlank()) {
-            responder.respondInvalidTaskDescription();
-            return null;
+            return TaskCreationResult.failure(responder.respondInvalidTaskDescription());
         }
 
         return switch (type) {
-            case "TODO" -> new ToDo(description, Task.allocateId());
+            case "TODO" -> TaskCreationResult.success(new ToDo(description, Task.allocateId()));
             case "DEADLINE" -> createDeadline(description, responder);
             case "EVENT" -> createEvent(description, responder);
             default -> throw new InvalidTaskType("Unknown task type: " + type);
@@ -112,21 +113,19 @@ public class AddCommand extends Command {
      *
      * @param description deadline description.
      * @param responder response builder used while validating the deadline.
-     * @return created deadline, or {@code null} when its details are invalid.
+     * @return a complete deadline or the validation message that prevents creation.
      */
-    private Task createDeadline(String description, Responder responder) {
+    private TaskCreationResult createDeadline(String description, Responder responder) {
         String by = values.get("by");
         if (by == null || by.isBlank()) {
-            responder.respondInvalidTaskInitiation();
-            return null;
+            return TaskCreationResult.failure(responder.respondInvalidTaskInitiation());
         }
 
         try {
             LocalDateTime dateTime = DateTimeParser.createLocalDateTime(by);
-            return new Deadline(description, dateTime, Task.allocateId());
+            return TaskCreationResult.success(new Deadline(description, dateTime, Task.allocateId()));
         } catch (IllegalArgumentException e) {
-            responder.respondInvalidDateTime();
-            return null;
+            return TaskCreationResult.failure(responder.respondInvalidDateTime());
         }
     }
 
@@ -135,28 +134,62 @@ public class AddCommand extends Command {
      *
      * @param description event description.
      * @param responder response builder used while validating the event.
-     * @return created event, or {@code null} when its details are invalid.
+     * @return a complete event or the validation message that prevents creation.
      */
-    private Task createEvent(String description, Responder responder) {
+    private TaskCreationResult createEvent(String description, Responder responder) {
         String from = values.get("from");
         String to = values.get("to");
         if (from == null || to == null || from.isBlank() || to.isBlank()) {
-            responder.respondInvalidTaskInitiation();
-            return null;
+            return TaskCreationResult.failure(responder.respondInvalidTaskInitiation());
         }
 
         try {
             LocalDateTime fromDateTime = DateTimeParser.createLocalDateTime(from);
             LocalDateTime toDateTime = DateTimeParser.createLocalDateTime(to);
             if (toDateTime.isBefore(fromDateTime)) {
-                responder.respondInvalidEventRange();
-                return null;
+                return TaskCreationResult.failure(responder.respondInvalidEventRange());
             }
-            return new Event(description, fromDateTime, toDateTime,
-                    Task.allocateId());
+            return TaskCreationResult.success(new Event(description, fromDateTime, toDateTime,
+                    Task.allocateId()));
         } catch (IllegalArgumentException e) {
-            responder.respondInvalidDateTime();
-            return null;
+            return TaskCreationResult.failure(responder.respondInvalidDateTime());
+        }
+    }
+
+    /**
+     * Captures either a fully validated task or the message explaining why it cannot be created.
+     *
+     * @param task created task, or {@code null} for a validation failure.
+     * @param validationMessage validation message, or {@code null} for a successful creation.
+     */
+    private record TaskCreationResult(Task task, String validationMessage) {
+        /**
+         * Creates a successful task-creation result.
+         *
+         * @param task fully validated task.
+         * @return successful creation result.
+         */
+        private static TaskCreationResult success(Task task) {
+            return new TaskCreationResult(task, null);
+        }
+
+        /**
+         * Creates a validation-failure result.
+         *
+         * @param validationMessage explanation suitable for the user.
+         * @return failed creation result.
+         */
+        private static TaskCreationResult failure(String validationMessage) {
+            return new TaskCreationResult(null, validationMessage);
+        }
+
+        /**
+         * Returns whether task creation completed validation.
+         *
+         * @return {@code true} when a task is available for storage.
+         */
+        private boolean isSuccessful() {
+            return task != null;
         }
     }
 }

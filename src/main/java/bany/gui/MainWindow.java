@@ -90,6 +90,7 @@ public class MainWindow extends AnchorPane {
         userInput.clear();
     }
 
+    /** Adds Bany's initial greeting to the conversation history. */
     public void showWelcomeMessage() {
         dialogContainer.getChildren().addAll(
                 DialogBox.getBotDialog(banyService.getWelcomeMessage(), banyImage)
