@@ -4,14 +4,13 @@ import java.io.IOException;
 
 import bany.TaskFileRepository;
 import bany.TaskStorage;
-import bany.Ui;
+import bany.gui.Responder;
 
 /**
  * Represents one executable Bany command.
  *
- * <p>Concrete commands contain the behavior for one user action. This keeps
- * the main application loop independent from the details of adding, deleting,
- * or searching tasks.</p>
+ * <p>Concrete commands contain the behavior for one user action and return a
+ * {@link CommandResult} for the user interface to display.</p>
  */
 public abstract class Command {
 
@@ -23,39 +22,28 @@ public abstract class Command {
      * Executes this command using the application's shared components.
      *
      * @param tasks the current task list.
-     * @param ui the user-interface component.
+     * @param responder response builder used to create user-facing messages.
      * @param repository the task persistence component.
+     * @return outcome of the command execution.
      */
-    public abstract void execute(
+    public abstract CommandResult execute(
             TaskStorage tasks,
-            Ui ui,
+            Responder responder,
             TaskFileRepository repository);
 
     /**
-     * Indicates whether this command should end the application.
-     *
-     * @return true only for the exit command.
-     */
-    public boolean isExit() {
-        return false;
-    }
-
-    /**
-     * Persists the current task list and displays an error if writing fails.
+     * Persists the current task list.
      *
      * @param tasks the current task list.
-     * @param ui the user-interface component used for error reporting.
+     * @param responder response builder supplied by the execution context.
      * @param repository the task persistence component.
-     * @return true if the list was saved successfully.
+     * @throws IOException if the task list cannot be saved.
      */
-    protected boolean saveTasks(TaskStorage tasks, Ui ui,
-                                TaskFileRepository repository) {
-        try {
-            repository.save(tasks.getTasks());
-            return true;
-        } catch (IOException e) {
-            Ui.ErrorUi.showFileUpdateError();
-            return false;
-        }
+    protected void saveTasks(
+            TaskStorage tasks,
+            Responder responder,
+            TaskFileRepository repository
+    ) throws IOException {
+        repository.save(tasks.getTasks());
     }
 }

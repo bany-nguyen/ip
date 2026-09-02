@@ -1,10 +1,11 @@
 package bany.commands;
 
+import java.io.IOException;
 import java.util.Map;
 
 import bany.TaskFileRepository;
 import bany.TaskStorage;
-import bany.Ui;
+import bany.gui.Responder;
 import bany.tasks.Task;
 
 /** Marks a numbered task as not completed. */
@@ -19,23 +20,41 @@ public class UnmarkCommand extends TaskIndexCommand {
         super(values);
     }
 
-    /** Marks the selected task as not done, persists the list, and reports the result. */
+    /**
+     * Marks the selected task as not done, persists the list, and returns the outcome.
+     *
+     * @return command outcome describing the change or an error.
+     */
     @Override
-    public void execute(TaskStorage tasks, Ui ui,
+    public CommandResult execute(TaskStorage tasks, Responder responder,
                         TaskFileRepository repository) {
-        Integer taskIndex = getTaskIndex(ui);
+        Integer taskIndex = getTaskIndex(responder);
         if (taskIndex == null) {
-            return;
+            return new CommandResult(
+                    responder.respondInvalidCommand(),
+                    false
+            );
         }
 
         Task task = tasks.unmarkTask(taskIndex);
         if (task == null) {
-            ui.showOutOfBoundIndex("unmark");
-            return;
+            return new CommandResult(
+                    responder.respondOutOfBoundIndex("unmark", tasks.getSize()),
+                    false
+            );
         }
 
-        if (saveTasks(tasks, ui, repository)) {
-            ui.showUnmarkTask(task);
+        try {
+            saveTasks(tasks, responder, repository);
+            return new CommandResult(
+                    responder.respondUnmarkTask(task),
+                    false
+            );
+        } catch (IOException e) {
+            return new CommandResult(
+                    Responder.ErrorResponder.respondFileUpdateError(),
+                    false
+            );
         }
     }
 }

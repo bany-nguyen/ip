@@ -73,6 +73,7 @@ public class TaskFileRepository {
      *
      * @param tasks tasks that should be persisted.
      * @throws IOException if the file cannot be created or written.
+     * @throws IllegalArgumentException if {@code tasks} is null or contains a null task.
      */
     public void save(List<Task> tasks) throws IOException {
         if (tasks == null) {

@@ -1,6 +1,6 @@
 package bany.enums;
 
-/** Lists command names supported by the task application. */
+/** Lists the command names represented by this legacy enum. */
 public enum Command {
     /** Creates a to-do task. */
     TODO,

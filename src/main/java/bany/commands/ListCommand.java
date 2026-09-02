@@ -2,19 +2,26 @@ package bany.commands;
 
 import bany.TaskFileRepository;
 import bany.TaskStorage;
-import bany.Ui;
+import bany.gui.Responder;
 
-/** Displays every task currently stored by Bany. */
+/** Returns every task currently stored by Bany. */
 public class ListCommand extends Command {
 
     /** Creates a list command. */
     public ListCommand() {
     }
 
-    /** Displays every task currently held by the task store. */
+    /**
+     * Returns every task currently held by the task store.
+     *
+     * @return command outcome containing the formatted task list.
+     */
     @Override
-    public void execute(TaskStorage tasks, Ui ui,
+    public CommandResult execute(TaskStorage tasks, Responder responder,
                         TaskFileRepository repository) {
-        ui.showList(tasks.getTasks());
+        return new CommandResult(
+                responder.respondList(tasks.getTasks()),
+                false
+        );
     }
 }

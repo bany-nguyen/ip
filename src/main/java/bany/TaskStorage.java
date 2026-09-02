@@ -37,6 +37,8 @@ public class TaskStorage {
      * Replaces the current list with tasks loaded from storage.
      *
      * @param tasks tasks restored from the data file.
+     * @throws NullPointerException if {@code tasks} is null.
+     * @throws IllegalArgumentException if the list contains a null task or duplicate ID.
      */
     public void replaceTasks(List<Task> tasks) {
         Objects.requireNonNull(tasks, "Task list cannot be null.");

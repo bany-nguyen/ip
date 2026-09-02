@@ -6,10 +6,10 @@ import java.util.Map;
 
 import bany.TaskFileRepository;
 import bany.TaskStorage;
-import bany.Ui;
+import bany.gui.Responder;
 import bany.tasks.Task;
 
-/** Displays tasks whose descriptions contain the search text. */
+/** Finds tasks whose descriptions contain the search text. */
 public class FindCommand extends Command {
     /** Parsed command values containing the search description. */
     private final Map<String, String> values;
@@ -23,14 +23,21 @@ public class FindCommand extends Command {
         this.values = values;
     }
 
-    /** Searches task descriptions and displays either matches or an error. */
+    /**
+     * Searches task descriptions and returns either matches or an error response.
+     *
+     * @return command outcome containing matching tasks or an error message.
+     */
     @Override
-    public void execute(TaskStorage tasks, Ui ui,
+    public CommandResult execute(TaskStorage tasks, Responder responder,
                         TaskFileRepository repository) {
         String query = values.get("description");
+
         if (query == null || query.isBlank()) {
-            ui.showInvalidCommand();
-            return;
+            return new CommandResult(
+                    responder.respondInvalidCommand(),
+                    false
+            );
         }
 
         List<Task> matches = new ArrayList<>();
@@ -41,9 +48,15 @@ public class FindCommand extends Command {
         }
 
         if (matches.isEmpty()) {
-            ui.showNoSuchTask();
+            return new CommandResult(
+                    responder.respondNoSuchTask(),
+                    false
+            );
         } else {
-            ui.showMatchedTasks(matches);
+            return new CommandResult(
+                    responder.respondMatchedTasks(matches),
+                    false
+            );
         }
     }
 }

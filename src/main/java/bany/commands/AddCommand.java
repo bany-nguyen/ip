@@ -1,13 +1,14 @@
 package bany.commands;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
 import bany.TaskFileRepository;
 import bany.TaskStorage;
-import bany.Ui;
 import bany.errors.InvalidTaskType;
+import bany.gui.Responder;
 import bany.parsers.DateTimeParser;
 import bany.tasks.Deadline;
 import bany.tasks.Event;
@@ -15,7 +16,7 @@ import bany.tasks.Task;
 import bany.tasks.ToDo;
 import bany.utilities.CommandValidator;
 
-/** Creates and persists TODO, DEADLINE, and EVENT tasks. */
+/** Handles the creation and persistence of TODO, DEADLINE, and EVENT tasks. */
 public class AddCommand extends Command {
     /** Parsed command values such as the type, description, and date tags. */
     private final Map<String, String> values;
@@ -38,60 +39,85 @@ public class AddCommand extends Command {
         this.validator = validator;
     }
 
-    /** Creates, stores, persists, and reports the new task. */
+    /**
+     * Creates, stores, and persists a task before returning a response.
+     *
+     * @return command outcome describing success, validation failure, or a save failure.
+     */
     @Override
-    public void execute(TaskStorage tasks, Ui ui,
+    public CommandResult execute(TaskStorage tasks, Responder responder,
                         TaskFileRepository repository) {
         String type = values.get("command");
         String duplicateTag = validator.findDuplicateCriticalTag(type, tagNames);
         if (duplicateTag != null) {
-            ui.showDuplicateTag(duplicateTag);
-            return;
+            return new CommandResult(
+                    responder.respondDuplicateTag(duplicateTag),
+                    false
+            );
         }
-
-        Task task = createTask(ui);
+        Task task = createTask(responder);
         if (task == null) {
-            return;
+            return new CommandResult(
+                    responder.respondInvalidTaskDescription(),
+                    false
+            );
         }
 
         if (validator.hasTagWarning(type, tagNames)) {
-            ui.showTagWarning();
+            return new CommandResult(
+                    responder.respondTagWarning(),
+                    false
+            );
         }
-
         tasks.addTask(task);
-        if (saveTasks(tasks, ui, repository)) {
-            ui.showAddTask(task, tasks.getSize());
+        try {
+            saveTasks(tasks, responder, repository);
+            return new CommandResult(
+                    responder.respondAddTask(task, tasks.getSize()),
+                    false
+            );
+        } catch (IOException e) {
+            return new CommandResult(
+                    Responder.ErrorResponder.respondFileUpdateError(),
+                    false
+            );
         }
     }
 
-    /** Creates the task type requested by the parsed command. */
-    private Task createTask(Ui ui) {
+    /**
+     * Creates the task type requested by the parsed command.
+     *
+     * @param responder response builder used while validating task details.
+     * @return created task, or {@code null} when its details are invalid.
+     */
+    private Task createTask(Responder responder) {
         String type = values.get("command");
         String description = values.get("description");
 
         if (description == null || description.isBlank()) {
-            ui.showInvalidTaskDescription();
+            responder.respondInvalidTaskDescription();
             return null;
         }
 
-        try {
-            return switch (type) {
-                case "TODO" -> new ToDo(description, Task.allocateId());
-                case "DEADLINE" -> createDeadline(description, ui);
-                case "EVENT" -> createEvent(description, ui);
-                default -> throw new InvalidTaskType("Unknown task type: " + type);
-            };
-        } catch (IllegalStateException e) {
-            ui.showTaskCreationFail();
-            return null;
-        }
+        return switch (type) {
+            case "TODO" -> new ToDo(description, Task.allocateId());
+            case "DEADLINE" -> createDeadline(description, responder);
+            case "EVENT" -> createEvent(description, responder);
+            default -> throw new InvalidTaskType("Unknown task type: " + type);
+        };
     }
 
-    /** Creates a deadline after validating its date-time value. */
-    private Task createDeadline(String description, Ui ui) {
+    /**
+     * Creates a deadline after validating its date-time value.
+     *
+     * @param description deadline description.
+     * @param responder response builder used while validating the deadline.
+     * @return created deadline, or {@code null} when its details are invalid.
+     */
+    private Task createDeadline(String description, Responder responder) {
         String by = values.get("by");
         if (by == null || by.isBlank()) {
-            ui.showInvalidTaskInitiation();
+            responder.respondInvalidTaskInitiation();
             return null;
         }
 
@@ -99,17 +125,23 @@ public class AddCommand extends Command {
             LocalDateTime dateTime = DateTimeParser.createLocalDateTime(by);
             return new Deadline(description, dateTime, Task.allocateId());
         } catch (IllegalArgumentException e) {
-            ui.showInvalidDateTime();
+            responder.respondInvalidDateTime();
             return null;
         }
     }
 
-    /** Creates an event after validating both date-times and their order. */
-    private Task createEvent(String description, Ui ui) {
+    /**
+     * Creates an event after validating both date-times and their order.
+     *
+     * @param description event description.
+     * @param responder response builder used while validating the event.
+     * @return created event, or {@code null} when its details are invalid.
+     */
+    private Task createEvent(String description, Responder responder) {
         String from = values.get("from");
         String to = values.get("to");
         if (from == null || to == null || from.isBlank() || to.isBlank()) {
-            ui.showInvalidTaskInitiation();
+            responder.respondInvalidTaskInitiation();
             return null;
         }
 
@@ -117,13 +149,13 @@ public class AddCommand extends Command {
             LocalDateTime fromDateTime = DateTimeParser.createLocalDateTime(from);
             LocalDateTime toDateTime = DateTimeParser.createLocalDateTime(to);
             if (toDateTime.isBefore(fromDateTime)) {
-                ui.showInvalidEventRange();
+                responder.respondInvalidEventRange();
                 return null;
             }
             return new Event(description, fromDateTime, toDateTime,
                     Task.allocateId());
         } catch (IllegalArgumentException e) {
-            ui.showInvalidDateTime();
+            responder.respondInvalidDateTime();
             return null;
         }
     }

@@ -14,13 +14,6 @@ public class Helper {
     }
 
     /**
-     * Prints the divider used to separate chatbot messages.
-     */
-    public static void printDivider() {
-        System.out.println("____________________________________________________________");
-    }
-
-    /**
      * Checks whether text can be parsed as a 32-bit signed integer.
      *
      * @param str text to check.

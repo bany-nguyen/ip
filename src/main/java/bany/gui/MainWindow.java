@@ -1,0 +1,98 @@
+package bany.gui;
+
+import java.util.Objects;
+
+import bany.BanyService;
+import bany.commands.CommandResult;
+import javafx.animation.PauseTransition;
+import javafx.application.Platform;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
+import javafx.util.Duration;
+
+/**
+ * JavaFX controller for Bany's main chat window.
+ *
+ * <p>The controller accepts user input, delegates command processing to
+ * {@link BanyService}, and appends both sides of the conversation to the
+ * dialog container.</p>
+ */
+public class MainWindow extends AnchorPane {
+    /** Scrollable viewport that displays the conversation history. */
+    @FXML
+    private ScrollPane scrollPane;
+    /** Container to which user and Bany dialog boxes are appended. */
+    @FXML
+    private VBox dialogContainer;
+    /** Button that submits the current text-field value. */
+    @FXML
+    private Button sendButton;
+    /** Text field in which the user enters a command. */
+    @FXML
+    private TextField userInput;
+
+    /** Service that executes commands for this window. */
+    private BanyService banyService;
+
+    /** Avatar used for dialog boxes containing user messages. */
+    private Image userImage;
+    /** Avatar used for dialog boxes containing Bany responses. */
+    private Image banyImage;
+
+    /**
+     * Loads dialog images and keeps the conversation scrolled to its newest entry.
+     */
+    @FXML
+    public void initialize() {
+        scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
+        userImage = new Image(Objects.requireNonNull(
+                getClass().getResourceAsStream("/bany/gui/images/DaUser.png")));
+        banyImage = new Image(Objects.requireNonNull(
+                getClass().getResourceAsStream("/bany/gui/images/BanyLogo.png")));
+
+    }
+
+    /**
+     * Supplies the service that this window uses to execute commands.
+     *
+     * @param banyService configured command-execution service.
+     */
+    public void setBanyGuiService(BanyService banyService) {
+        this.banyService = banyService;
+    }
+
+    /**
+     * Sends the current input to Bany and adds the input and response to the chat.
+     */
+    @FXML
+    public void handleUserInput() {
+        String input = userInput.getText();
+        CommandResult commandResult = banyService.executeCommand(userInput.getText());
+        String response = commandResult.message();
+        boolean isExit = commandResult.shouldExit();
+
+        dialogContainer.getChildren().addAll(
+                DialogBox.getUserDialog(input, userImage),
+                DialogBox.getBotDialog(response, banyImage)
+        );
+
+        if (isExit) {
+            PauseTransition delay = new PauseTransition(Duration.seconds(1.5));
+            delay.setOnFinished(event -> Platform.exit());
+            delay.play();
+        }
+
+        userInput.clear();
+    }
+
+    public void showWelcomeMessage() {
+        dialogContainer.getChildren().addAll(
+                DialogBox.getBotDialog(banyService.getWelcomeMessage(), banyImage)
+        );
+    }
+}

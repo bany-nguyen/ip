@@ -2,7 +2,7 @@ package bany.commands;
 
 import bany.TaskFileRepository;
 import bany.TaskStorage;
-import bany.Ui;
+import bany.gui.Responder;
 
 /** Executes the command that ends the Bany session. */
 public class ExitCommand extends Command {
@@ -11,20 +11,17 @@ public class ExitCommand extends Command {
     public ExitCommand() {
     }
 
-    /** Displays the goodbye message for the current session. */
-    @Override
-    public void execute(TaskStorage tasks, Ui ui,
-                        TaskFileRepository repository) {
-        ui.showGoodbye();
-    }
-
     /**
-     * Indicates that this command ends the application loop.
+     * Returns the goodbye message and signals that the application should exit.
      *
-     * @return always {@code true}.
+     * @return exit command outcome.
      */
     @Override
-    public boolean isExit() {
-        return true;
+    public CommandResult execute(TaskStorage tasks, Responder responder,
+                        TaskFileRepository repository) {
+        return new CommandResult(
+                responder.respondGoodbye(),
+                true
+        );
     }
 }

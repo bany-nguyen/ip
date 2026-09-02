@@ -167,6 +167,12 @@ public class InputParser {
         }
     }
 
+    /**
+     * Finds the first whitespace character in a command string.
+     *
+     * @param input command text to inspect.
+     * @return index of the first whitespace character, or {@code -1} when none exists.
+     */
     private static int firstWhitespaceIndex(String input) {
         for (int i = 0; i < input.length(); i++) {
             if (Character.isWhitespace(input.charAt(i))) {
@@ -176,6 +182,13 @@ public class InputParser {
         return -1;
     }
 
+    /**
+     * Finds the next slash that begins a tag.
+     *
+     * @param input command text to inspect.
+     * @param fromIndex index from which to begin searching.
+     * @return index of the next slash, or {@code -1} when none exists.
+     */
     private static int findTagStart(String input, int fromIndex) {
         return input.indexOf('/', fromIndex);
     }

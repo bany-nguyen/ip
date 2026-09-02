@@ -1,10 +1,11 @@
 package bany.commands;
 
+import java.io.IOException;
 import java.util.Map;
 
 import bany.TaskFileRepository;
 import bany.TaskStorage;
-import bany.Ui;
+import bany.gui.Responder;
 import bany.tasks.Task;
 
 /** Deletes a numbered task from Bany's task list. */
@@ -19,23 +20,41 @@ public class DeleteCommand extends TaskIndexCommand {
         super(values);
     }
 
-    /** Deletes the selected task, persists the updated list, and reports the result. */
+    /**
+     * Deletes the selected task, persists the updated list, and returns the outcome.
+     *
+     * @return command outcome describing the deletion or an error.
+     */
     @Override
-    public void execute(TaskStorage tasks, Ui ui,
+    public CommandResult execute(TaskStorage tasks, Responder responder,
                         TaskFileRepository repository) {
-        Integer taskIndex = getTaskIndex(ui);
+        Integer taskIndex = getTaskIndex(responder);
         if (taskIndex == null) {
-            return;
+            return new CommandResult(
+                    responder.respondInvalidCommand(),
+                    false
+            );
         }
 
         Task task = tasks.deleteTask(taskIndex);
         if (task == null) {
-            ui.showOutOfBoundIndex("delete");
-            return;
+            return new CommandResult(
+                    responder.respondOutOfBoundIndex("delete", tasks.getSize()),
+                    false
+            );
         }
 
-        if (saveTasks(tasks, ui, repository)) {
-            ui.showDeleteTask(task, tasks.getSize());
+        try {
+            saveTasks(tasks, responder, repository);
+            return new CommandResult(
+                    responder.respondDeleteTask(task, tasks.getSize()),
+                    false
+            );
+        } catch (IOException e) {
+            return new CommandResult(
+                    Responder.ErrorResponder.respondFileUpdateError(),
+                    false
+            );
         }
     }
 }

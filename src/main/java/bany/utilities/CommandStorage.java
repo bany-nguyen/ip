@@ -7,12 +7,15 @@ import java.util.Set;
  * Stores the commands recognized by Bany and provides command validation.
  */
 public final class CommandStorage {
+    /** Commands that create a new task. */
     private static final Set<String> VALID_TASK_COMMANDS = Set.of(
             "TODO", "DEADLINE", "EVENT");
 
+    /** Commands that act on existing tasks or the application session. */
     private static final Set<String> VALID_ACTION_COMMANDS = Set.of(
             "BYE", "LIST", "MARK", "UNMARK", "DELETE", "FIND");
 
+    /** All recognised commands in the order used for suggestions. */
     private static final List<String> ALL_COMMANDS = List.of(
             "TODO", "DEADLINE", "EVENT",
             "BYE", "LIST", "MARK", "UNMARK", "DELETE", "FIND");

@@ -1,0 +1,69 @@
+package bany;
+
+import bany.commands.Command;
+import bany.commands.CommandParser;
+import bany.commands.CommandResult;
+import bany.gui.Responder;
+
+/**
+ * Coordinates command parsing and execution for the JavaFX interface.
+ *
+ * <p>The service owns the shared application dependencies used for each
+ * command and translates malformed input into a {@link CommandResult}.</p>
+ */
+public class BanyService {
+
+    /** Repository used to persist changes to the task list. */
+    private TaskFileRepository taskFileRepository;
+    /** In-memory list on which commands operate. */
+    private TaskStorage taskStorage;
+    /** Parser that turns entered text into command objects. */
+    private CommandParser commandParser;
+    /** Builder for messages displayed in the GUI. */
+    private Responder responder;
+
+    /**
+     * Creates the service with the dependencies shared by all commands.
+     *
+     * @param taskFileRepository repository used to persist task changes.
+     * @param taskStorage in-memory task storage.
+     * @param commandParser parser for user-entered commands.
+     * @param responder builder for GUI response messages.
+     */
+    public BanyService(
+            TaskFileRepository taskFileRepository,
+            TaskStorage taskStorage,
+            CommandParser commandParser,
+            Responder responder
+    ) {
+        this.taskFileRepository = taskFileRepository;
+        this.taskStorage = taskStorage;
+        this.commandParser = commandParser;
+        this.responder = responder;
+    }
+
+    /**
+     * Parses and executes one command entered through the GUI.
+     *
+     * @param userInput complete command text entered by the user.
+     * @return execution outcome, including an invalid-command response for malformed input.
+     */
+    public CommandResult executeCommand(String userInput) {
+
+        try {
+            Command command = commandParser.parse(userInput);
+            return command.execute(taskStorage, responder, taskFileRepository);
+        } catch (IllegalArgumentException e) {
+            // CommandParser uses IllegalArgumentException for blank or
+            // malformed input. The UI turns it into friendly output.
+            return new CommandResult(
+                    responder.respondInvalidCommand(),
+                    false
+            );
+        }
+    }
+
+    public String getWelcomeMessage() {
+        return responder.respondWelcome();
+    }
+}

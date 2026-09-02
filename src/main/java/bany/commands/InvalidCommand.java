@@ -2,9 +2,9 @@ package bany.commands;
 
 import bany.TaskFileRepository;
 import bany.TaskStorage;
-import bany.Ui;
+import bany.gui.Responder;
 
-/** Displays an error for an unrecognised command. */
+/** Represents an unrecognised command and its optional suggestion. */
 public class InvalidCommand extends Command {
     /** Closest recognized command to suggest, if one was found. */
     private final String suggestion;
@@ -18,10 +18,17 @@ public class InvalidCommand extends Command {
         this.suggestion = suggestion;
     }
 
-    /** Displays the invalid-command message and any available suggestion. */
+    /**
+     * Returns the invalid-command response and any available suggestion.
+     *
+     * @return invalid-command outcome.
+     */
     @Override
-    public void execute(TaskStorage tasks, Ui ui,
+    public CommandResult execute(TaskStorage tasks, Responder responder,
                         TaskFileRepository repository) {
-        ui.showInvalidCommand(suggestion);
+        return new CommandResult(
+                responder.respondInvalidCommand(suggestion),
+                false
+        );
     }
 }

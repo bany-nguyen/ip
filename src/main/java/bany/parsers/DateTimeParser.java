@@ -13,6 +13,7 @@ import java.time.format.ResolverStyle;
  * minutes, while {@code HH} represents a 24-hour clock.</p>
  */
 public class DateTimeParser {
+    /** Strict formatter used for all supported Bany date-time values. */
     private static final DateTimeFormatter DATE_TIME_FORMATTER =
             DateTimeFormatter.ofPattern("dd-MM-uuuu HH:mm")
                     .withResolverStyle(ResolverStyle.STRICT);
@@ -83,6 +84,7 @@ public class DateTimeParser {
      *
      * @param dateTime date-time to format.
      * @return date-time in {@code dd-MM-yyyy HH:mm} format.
+     * @throws IllegalArgumentException if {@code dateTime} is null or its year is unsupported.
      */
     public static String formatLocalDateTime(LocalDateTime dateTime) {
         if (dateTime == null) {
