@@ -2,8 +2,6 @@ package bany.tasks;
 
 import java.util.Objects;
 
-import bany.enums.TaskStatus;
-
 /** Represents a task with a unique ID, description, type, and completion state. */
 public abstract class Task {
     /** The next ID available for a newly created task. */

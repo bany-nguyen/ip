@@ -33,7 +33,7 @@ public class CommandParser {
         String commandName = values.get("command");
 
         if (!CommandStorage.checkValidAllCommandWord(commandName)) {
-            return new InvalidCommand(Helper.closestWordMatch(commandName));
+            return new InvalidCommand(Helper.getClosestWordMatch(commandName));
         }
 
         List<String> tagNames = InputParser.getTagNames(input);

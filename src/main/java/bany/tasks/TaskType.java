@@ -1,4 +1,4 @@
-package bany.enums;
+package bany.tasks;
 
 /** Stores the full and abbreviated display names for task types. */
 public enum TaskType {

@@ -8,7 +8,8 @@ import java.util.Set;
 public class CommandValidator {
 
     /** Creates a validator using Bany's built-in command rules. */
-    public CommandValidator() {}
+    public CommandValidator() {
+    }
 
     /**
      * Finds a repeated tag that is required for the given task type.

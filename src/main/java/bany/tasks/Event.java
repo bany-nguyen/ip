@@ -3,7 +3,6 @@ package bany.tasks;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import bany.enums.TaskType;
 import bany.parsers.DateTimeParser;
 
 /** Represents a task that occurs between a start and end date-time. */

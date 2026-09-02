@@ -9,10 +9,6 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class Helper {
 
-    /** Creates a helper utility object. */
-    public Helper() {
-    }
-
     /**
      * Checks whether text can be parsed as a 32-bit signed integer.
      *
@@ -42,7 +38,7 @@ public class Helper {
      * @param input command text entered by the user.
      * @return the closest allowed command, or {@code null} for blank input.
      */
-    public static String closestWordMatch(String input) {
+    public static String getClosestWordMatch(String input) {
         if (StringUtils.isBlank(input)) {
             return null;
         }

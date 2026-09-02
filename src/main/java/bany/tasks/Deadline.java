@@ -3,7 +3,6 @@ package bany.tasks;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import bany.enums.TaskType;
 import bany.parsers.DateTimeParser;
 
 /** Represents a task that must be completed by a specified date-time. */

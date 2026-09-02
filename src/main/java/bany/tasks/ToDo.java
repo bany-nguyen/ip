@@ -1,7 +1,5 @@
 package bany.tasks;
 
-import bany.enums.TaskType;
-
 /** Represents a task without a deadline or event time range. */
 public class ToDo extends Task {
     /**

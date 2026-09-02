@@ -154,6 +154,7 @@ public class Responder {
             response.append(System.lineSeparator())
                     .append(count++)
                     .append('.')
+                    .append(' ')
                     .append(task);
         }
         return response.toString();
