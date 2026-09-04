@@ -30,7 +30,7 @@ public class MarkCommand extends TaskIndexCommand {
                         TaskFileRepository repository) {
         Integer taskIndex = getTaskIndex();
 
-        if (taskIndex == null || taskIndex <= 0) {
+        if (taskIndex == null || taskIndex < 0) {
             return CommandResult.error(
                     ResponseMessage.error(responder.respondInvalidCommand()));
         }

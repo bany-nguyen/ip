@@ -1,6 +1,9 @@
 package bany.utilities;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -39,11 +42,17 @@ public class Helper {
      * @return the closest allowed command, or {@code null} for blank input.
      */
     public static String getClosestWordMatch(String input) {
-        if (StringUtils.isBlank(input)) {
+
+        if (input == null || input.isBlank()) {
             return null;
         }
 
         String normalizedInput = input.trim().toUpperCase(Locale.ROOT);
+
+        if (!(getCommonConfusionPair(input) == null)) {
+            return getCommonConfusionPair(input);
+        }
+
         String closestCommand = null;
         int smallestDistance = Integer.MAX_VALUE;
 
@@ -56,5 +65,22 @@ public class Helper {
         }
 
         return closestCommand;
+    }
+
+    public static String getCommonConfusionPair(String input) {
+        String normalizedInput = input.trim().toUpperCase(Locale.ROOT);
+
+        if (normalizedInput.equals("SEARCH")) {
+            return "FIND";
+        }
+
+        if (normalizedInput.equals("TICK")) {
+            return "MARK";
+        }
+
+        if (normalizedInput.equals("UNTICK")) {
+            return "UNMARK";
+        }
+        return null;
     }
 }
