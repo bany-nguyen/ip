@@ -44,6 +44,6 @@ public abstract class Command {
             Responder responder,
             TaskFileRepository repository
     ) throws IOException {
-        repository.save(tasks.getTasks());
+        repository.save(tasks);
     }
 }

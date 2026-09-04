@@ -1,4 +1,4 @@
-package bany.errors;
+package bany.exceptions;
 
 /** Indicates that a task has an unsupported type. */
 public class InvalidTaskType extends RuntimeException {

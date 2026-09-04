@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import bany.errors.InvalidTaskType;
+import bany.exceptions.InvalidTaskType;
 import bany.tasks.Deadline;
 import bany.tasks.Event;
 import bany.tasks.Task;
@@ -69,16 +69,16 @@ public class TaskFileRepository {
     }
 
     /**
-     * Saves the complete current task list as one JSON array.
+     * Saves every task currently held by the supplied task storage as one JSON array.
      *
-     * @param tasks tasks that should be persisted.
+     * @param taskStorage storage whose tasks should be persisted.
      * @throws IOException if the file cannot be created or written.
-     * @throws IllegalArgumentException if {@code tasks} is null or contains a null task.
+     * @throws NullPointerException if {@code taskStorage} is null.
      */
-    public void save(List<Task> tasks) throws IOException {
-        if (tasks == null) {
-            throw new IllegalArgumentException("Task list cannot be null.");
-        }
+    public void save(TaskStorage taskStorage) throws IOException {
+        TaskStorage nonNullTaskStorage = Objects.requireNonNull(
+                taskStorage, "Task storage cannot be null.");
+        List<Task> tasks = nonNullTaskStorage.getTasks();
 
         ArrayNode jsonTasks = mapper.createArrayNode();
 
@@ -98,23 +98,28 @@ public class TaskFileRepository {
     }
 
     /**
-     * Loads all tasks from the JSON file.
+     * Loads all tasks from the JSON file directly into the supplied task storage.
      * Task IDs are reconstructed sequentially from the order of the saved
      * task entries; any persisted {@code id} fields are ignored.
      *
-     * @return restored tasks, or an empty list if the file does not exist.
+     * @param taskStorage storage to replace with the restored tasks.
      * @throws IOException if the file is malformed or cannot be read.
+     * @throws NullPointerException if {@code taskStorage} is null.
      */
-    public List<Task> load() throws IOException {
+    public void load(TaskStorage taskStorage) throws IOException {
+        TaskStorage nonNullTaskStorage = Objects.requireNonNull(
+                taskStorage, "Task storage cannot be null.");
         if (Files.notExists(path)) {
+            nonNullTaskStorage.replaceTasks(List.of());
             Task.resetIdAllocator(1);
-            return List.of();
+            return;
         }
 
         String content = Files.readString(path);
         if (content.isBlank()) {
+            nonNullTaskStorage.replaceTasks(List.of());
             Task.resetIdAllocator(1);
-            return List.of();
+            return;
         }
 
         JsonNode jsonTasks = mapper.readTree(content);
@@ -132,7 +137,7 @@ public class TaskFileRepository {
             reconstructedId++;
         }
         Task.resetIdAllocator(reconstructedId);
-        return tasks;
+        nonNullTaskStorage.replaceTasks(tasks);
     }
 
     /**

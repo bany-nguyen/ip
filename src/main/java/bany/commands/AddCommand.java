@@ -7,7 +7,7 @@ import java.util.Map;
 
 import bany.TaskFileRepository;
 import bany.TaskStorage;
-import bany.errors.InvalidTaskType;
+import bany.exceptions.InvalidTaskType;
 import bany.gui.Responder;
 import bany.parsers.DateTimeParser;
 import bany.tasks.Deadline;

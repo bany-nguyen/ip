@@ -47,16 +47,16 @@ class ResponderTest {
     @Test
     void taskResponses_includeTaskDetailsAndCounts() {
         assertEquals("Got it. I've added this task:" + System.lineSeparator()
-                        + "  [T][] Read book" + System.lineSeparator()
+                        + "  [T][  ] Read book" + System.lineSeparator()
                         + "Now you have 1 tasks in the list.", responder.respondAddTask(task, 1));
         assertEquals("Nice! I've marked this task as done:" + System.lineSeparator()
-                        + "   [T][] Read book",
+                        + "   [T][  ] Read book",
                 responder.respondMarkTask(task));
         assertEquals("Nice! I've unmarked this task as done:" + System.lineSeparator()
-                        + "   [T][] Read book",
+                        + "   [T][  ] Read book",
                 responder.respondUnmarkTask(task));
         assertEquals("Noted. I've removed this task:" + System.lineSeparator()
-                        + "   [T][] Read book" + System.lineSeparator()
+                        + "   [T][  ] Read book" + System.lineSeparator()
                         + "Now you have 0 tasks in the list.", responder.respondDeleteTask(task, 0));
     }
 
@@ -65,10 +65,11 @@ class ResponderTest {
         Task secondTask = new ToDo("Submit assignment", 2);
 
         assertEquals("Here are the tasks in your list:" + System.lineSeparator()
-                        + "1.[T][] Read book" + System.lineSeparator() + "2.[T][] Submit assignment",
+                        + "1. [T][  ] Read book" + System.lineSeparator()
+                        + "2. [T][  ] Submit assignment",
                 responder.respondList(List.of(task, secondTask)));
         assertEquals("Here are the matching tasks in your list:" + System.lineSeparator()
-                        + "1.[T][] Read book",
+                        + "1.[T][  ] Read book",
                 responder.respondMatchedTasks(List.of(task)));
     }
 

@@ -11,11 +11,11 @@ import bany.tasks.Task;
 /** Maintains the in-memory ordered list of tasks used by Bany. */
 public class TaskStorage {
     /** Tasks in the order in which they are displayed and indexed. */
-    private final List<Task> listOfTasks;
+    private final List<Task> taskList;
 
     /** Creates an empty task list. */
     public TaskStorage() {
-        this.listOfTasks = new ArrayList<>(100);
+        this.taskList = new ArrayList<>(100);
     }
 
     /**
@@ -27,10 +27,10 @@ public class TaskStorage {
      */
     public void addTask(Task task) {
         Task nonNullTask = Objects.requireNonNull(task, "Task cannot be null.");
-        if (listOfTasks.stream().anyMatch(existing -> existing.getId() == nonNullTask.getId())) {
+        if (taskList.stream().anyMatch(existing -> existing.getId() == nonNullTask.getId())) {
             throw new IllegalArgumentException("Task ID must be unique.");
         }
-        listOfTasks.add(nonNullTask);
+        taskList.add(nonNullTask);
     }
 
     /**
@@ -51,8 +51,8 @@ public class TaskStorage {
                 throw new IllegalArgumentException("Task IDs must be unique.");
             }
         }
-        listOfTasks.clear();
-        listOfTasks.addAll(tasks);
+        taskList.clear();
+        taskList.addAll(tasks);
     }
 
     /**
@@ -63,7 +63,7 @@ public class TaskStorage {
      * @throws IndexOutOfBoundsException if the index is outside the list.
      */
     public Task getTask(int index) {
-        return listOfTasks.get(index);
+        return taskList.get(index);
     }
 
     /**
@@ -74,7 +74,7 @@ public class TaskStorage {
      * @throws IndexOutOfBoundsException if the index is outside the list.
      */
     public Task removeTask(int index) {
-        return listOfTasks.remove(index);
+        return taskList.remove(index);
     }
 
     /**
@@ -83,7 +83,7 @@ public class TaskStorage {
      * @return current task count.
      */
     public int getSize() {
-        return listOfTasks.size();
+        return taskList.size();
     }
 
     /**
@@ -92,7 +92,7 @@ public class TaskStorage {
      * @return tasks in display order.
      */
     public List<Task> getTasks() {
-        return List.copyOf(listOfTasks);
+        return List.copyOf(taskList);
     }
 
     /**
@@ -136,7 +136,7 @@ public class TaskStorage {
             return null;
         }
         Task task = getTask(taskNo);
-        listOfTasks.remove(task);
+        taskList.remove(task);
         return task;
     }
 }

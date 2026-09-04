@@ -71,6 +71,7 @@ public class Main extends Application {
             Scene scene = new Scene(ap);
             stage.setScene(scene);
             fxmlLoader.<MainWindow>getController().setBanyGuiService(banyService);
+            repository.load(taskStorage);
             fxmlLoader.<MainWindow>getController().showWelcomeMessage();
             stage.show();
 
