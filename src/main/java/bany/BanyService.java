@@ -15,13 +15,13 @@ import bany.gui.Responder;
 public class BanyService {
 
     /** Repository used to persist changes to the task list. */
-    private TaskFileRepository taskFileRepository;
+    private final TaskFileRepository taskFileRepository;
     /** In-memory list on which commands operate. */
-    private TaskStorage taskStorage;
+    private final TaskStorage taskStorage;
     /** Parser that turns entered text into command objects. */
-    private CommandParser commandParser;
+    private final CommandParser commandParser;
     /** Builder for messages displayed in the GUI. */
-    private Responder responder;
+    private final Responder responder;
 
     /**
      * Creates the service with the dependencies shared by all commands.
