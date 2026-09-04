@@ -72,6 +72,10 @@ public class MainWindow extends AnchorPane {
     @FXML
     public void handleUserInput() {
         String input = userInput.getText();
+        if (input == null || input.isBlank()) {
+            return;
+        }
+
         CommandResult commandResult = banyService.executeCommand(userInput.getText());
         String response = commandResult.message();
         boolean isExit = commandResult.shouldExit();
