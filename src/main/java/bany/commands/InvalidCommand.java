@@ -26,9 +26,8 @@ public class InvalidCommand extends Command {
     @Override
     public CommandResult execute(TaskStorage tasks, Responder responder,
                         TaskFileRepository repository) {
-        return new CommandResult(
-                responder.respondInvalidCommand(suggestion),
-                false
-        );
+        return CommandResult.error(
+                ResponseMessage.error(
+                        responder.respondInvalidCommand(suggestion)));
     }
 }

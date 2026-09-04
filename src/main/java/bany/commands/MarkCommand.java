@@ -30,31 +30,37 @@ public class MarkCommand extends TaskIndexCommand {
                         TaskFileRepository repository) {
         Integer taskIndex = getTaskIndex(responder);
         if (taskIndex == null) {
-            return new CommandResult(
-                    responder.respondInvalidCommand(),
-                    false
-            );
+            return CommandResult.error(
+                    ResponseMessage.error(responder.respondInvalidCommand()));
         }
 
-        Task task = tasks.markTask(taskIndex);
+        Task task = tasks.getTask(taskIndex);
+
         if (task == null) {
-            return new CommandResult(
-                    responder.respondOutOfBoundIndex("mark", tasks.getSize()),
-                    false
-            );
+            return CommandResult.error(
+                    ResponseMessage.error(
+                            responder.respondOutOfBoundIndex("mark", tasks.getSize())));
         }
+
+        boolean wasMarked = task.isDone();
+
+        task.mark();
+
 
         try {
             saveTasks(tasks, responder, repository);
-            return new CommandResult(
-                    responder.respondMarkTask(task),
-                    false
-            );
+            return CommandResult.error(
+                    ResponseMessage.error(
+                            responder.respondMarkTask(task)));
         } catch (IOException e) {
-            return new CommandResult(
-                    Responder.ErrorResponder.respondFileUpdateError(),
-                    false
-            );
+            if (wasMarked) {
+                task.mark();
+            } else {
+                task.unmark();
+            }
+            return CommandResult.error(
+                    ResponseMessage.error(
+                            Responder.ErrorResponder.respondFileUpdateError()));
         }
     }
 }

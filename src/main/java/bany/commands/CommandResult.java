@@ -27,4 +27,21 @@ public record CommandResult(
                 List.of(messages), CommandOutcome.SUCCESS
         );
     }
+
+    public static CommandResult error(ResponseMessage ... messages) {
+        return new CommandResult(
+                List.of(messages), CommandOutcome.ERROR
+        );
+    }
+
+    public static CommandResult exit(ResponseMessage ... messages) {
+        return new CommandResult(
+                List.of(messages), CommandOutcome.EXIT
+        );
+    }
+
+    public boolean shouldExit() {
+        return outcome == CommandOutcome.EXIT;
+    }
+
 }

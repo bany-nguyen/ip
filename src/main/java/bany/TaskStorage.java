@@ -67,17 +67,6 @@ public class TaskStorage {
     }
 
     /**
-     * Removes and returns the task at a zero-based list index.
-     *
-     * @param index zero-based task index.
-     * @return removed task.
-     * @throws IndexOutOfBoundsException if the index is outside the list.
-     */
-    public Task removeTask(int index) {
-        return taskList.remove(index);
-    }
-
-    /**
      * Returns the number of stored tasks.
      *
      * @return current task count.
@@ -138,5 +127,12 @@ public class TaskStorage {
         Task task = getTask(taskNo);
         taskList.remove(task);
         return task;
+    }
+
+    public void insertTask(int index,  Task task) {
+        if (index < 0 || index >= getSize()) {
+            return;
+        }
+        taskList.add(index, task);
     }
 }

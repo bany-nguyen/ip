@@ -3,6 +3,7 @@ package bany;
 import bany.commands.Command;
 import bany.commands.CommandParser;
 import bany.commands.CommandResult;
+import bany.commands.ResponseMessage;
 import bany.gui.Responder;
 
 /**
@@ -49,21 +50,22 @@ public class BanyService {
      * @return execution outcome, including an invalid-command response for malformed input.
      */
     public CommandResult executeCommand(String userInput) {
+        Command command;
 
         try {
-            Command command = commandParser.parse(userInput);
-            return command.execute(taskStorage, responder, taskFileRepository);
+            command = commandParser.parse(userInput);
         } catch (IllegalArgumentException e) {
             // CommandParser uses IllegalArgumentException for blank or
             // malformed input. The UI turns it into friendly output.
-            return new CommandResult(
-                    responder.respondInvalidCommand(),
-                    false
-            );
+            return CommandResult.error(
+                    ResponseMessage.error(responder.respondInvalidCommand()));
         }
+
+        return command.execute(taskStorage, responder, taskFileRepository);
     }
 
-    public String getWelcomeMessage() {
-        return responder.respondWelcome();
+    public ResponseMessage getWelcomeMessage() {
+        return ResponseMessage.info(
+                responder.respondWelcome());
     }
 }

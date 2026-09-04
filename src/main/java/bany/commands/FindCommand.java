@@ -34,10 +34,9 @@ public class FindCommand extends Command {
         String query = values.get("description");
 
         if (query == null || query.isBlank()) {
-            return new CommandResult(
-                    responder.respondInvalidCommand(),
-                    false
-            );
+            return CommandResult.error(
+                    ResponseMessage.error(
+                            responder.respondInvalidCommand()));
         }
 
         List<Task> matches = new ArrayList<>();
@@ -48,15 +47,12 @@ public class FindCommand extends Command {
         }
 
         if (matches.isEmpty()) {
-            return new CommandResult(
-                    responder.respondNoSuchTask(),
-                    false
-            );
+            return CommandResult.error(
+                    ResponseMessage.error(
+                            responder.respondNoSuchTask()));
         } else {
-            return new CommandResult(
-                    responder.respondMatchedTasks(matches),
-                    false
-            );
+            return CommandResult.success(
+                    ResponseMessage.info(responder.respondMatchedTasks(matches)));
         }
     }
 }
