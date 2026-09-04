@@ -63,8 +63,7 @@ public class TaskStorage {
      * Returns the task at a zero-based list index.
      *
      * @param index zero-based task index.
-     * @return task at the requested index.
-     * @throws IndexOutOfBoundsException if the index is outside the list.
+     * @return task at the requested index, or {@code null} if the index is invalid.
      */
     public Task getTask(int index) {
         if (index < 0 || index >= taskList.size()) {
@@ -136,6 +135,14 @@ public class TaskStorage {
         return task;
     }
 
+    /**
+     * Inserts a task at a specific list position, such as when undoing a failed deletion.
+     *
+     * @param index zero-based insertion position.
+     * @param task task to insert.
+     * @throws NullPointerException if {@code task} is null.
+     * @throws IndexOutOfBoundsException if the index is outside the insertion range.
+     */
     public void insertTask(int index, Task task) {
         Objects.requireNonNull(task, "Task cannot be null.");
         if (index < 0 || index > getSize()) {

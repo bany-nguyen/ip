@@ -44,7 +44,7 @@ public class BanyService {
     }
 
     /**
-     * Parses and executes one command entered through the GUI.
+     * Parses and executes one command entered by the user.
      *
      * @param userInput complete command text entered by the user.
      * @return execution outcome, including an invalid-command response for malformed input.
@@ -64,6 +64,7 @@ public class BanyService {
         return command.execute(taskStorage, responder, taskFileRepository);
     }
 
+    /** Returns Bany's initial greeting as an informational response. */
     public ResponseMessage getWelcomeMessage() {
         return ResponseMessage.info(
                 responder.respondWelcome());

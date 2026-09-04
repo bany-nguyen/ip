@@ -37,7 +37,7 @@ class BanyServiceTest {
     void executeCommand_todoWithoutDescription_returnsDescriptionError() {
         CommandResult result = banyService.executeCommand("todo");
 
-        assertEquals("Task description cannot be blank!", result.message());
+        assertEquals("Task description cannot be blank!", result.messages().get(0).text());
         assertFalse(result.shouldExit());
         assertEquals(0, taskStorage.getSize());
     }
@@ -47,7 +47,8 @@ class BanyServiceTest {
         CommandResult result = banyService.executeCommand(
                 "deadline run /from 21-02-2026 21:03");
 
-        assertEquals("Your tags for the task do not match the requirements!", result.message());
+        assertEquals("Your tags for the task do not match the requirements!",
+                result.messages().get(0).text());
         assertFalse(result.shouldExit());
         assertEquals(0, taskStorage.getSize());
     }
@@ -66,7 +67,8 @@ class BanyServiceTest {
         CommandResult result = banyService.executeCommand(
                 "event meeting /to 22-02-2026 21:03 /from 21-02-2026 21:03");
 
-        assertTrue(result.message().contains("Got it. I've added this task:"));
+        assertTrue(result.messages().stream()
+                .anyMatch(message -> message.text().contains("Got it. I've added this task:")));
         assertEquals(1, taskStorage.getSize());
     }
 
@@ -115,8 +117,10 @@ class BanyServiceTest {
     void executeCommand_extraOrDuplicateNonCriticalTags_warnsAndCreatesTask() {
         CommandResult result = banyService.executeCommand("todo read book /open now /open later");
 
-        assertTrue(result.message().contains("Warning: the command contains extra tags"));
-        assertTrue(result.message().contains("Got it. I've added this task:"));
+        assertTrue(result.messages().stream()
+                .anyMatch(message -> message.text().contains("Warning: the command contains extra tags")));
+        assertTrue(result.messages().stream()
+                .anyMatch(message -> message.text().contains("Got it. I've added this task:")));
         assertEquals(1, taskStorage.getSize());
     }
 

@@ -1,9 +1,6 @@
 package bany.utilities;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -67,6 +64,12 @@ public class Helper {
         return closestCommand;
     }
 
+    /**
+     * Returns a preferred command for commonly confused command words.
+     *
+     * @param input command word entered by the user.
+     * @return preferred command, or {@code null} if no direct mapping exists.
+     */
     public static String getCommonConfusionPair(String input) {
         String normalizedInput = input.trim().toUpperCase(Locale.ROOT);
 
