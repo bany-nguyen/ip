@@ -39,11 +39,17 @@ public class Helper {
      * @return the closest allowed command, or {@code null} for blank input.
      */
     public static String getClosestWordMatch(String input) {
-        if (StringUtils.isBlank(input)) {
+
+        if (input == null || input.isBlank()) {
             return null;
         }
 
         String normalizedInput = input.trim().toUpperCase(Locale.ROOT);
+
+        if (!(getCommonConfusionPair(input) == null)) {
+            return getCommonConfusionPair(input);
+        }
+
         String closestCommand = null;
         int smallestDistance = Integer.MAX_VALUE;
 
@@ -56,5 +62,28 @@ public class Helper {
         }
 
         return closestCommand;
+    }
+
+    /**
+     * Returns a preferred command for commonly confused command words.
+     *
+     * @param input command word entered by the user.
+     * @return preferred command, or {@code null} if no direct mapping exists.
+     */
+    public static String getCommonConfusionPair(String input) {
+        String normalizedInput = input.trim().toUpperCase(Locale.ROOT);
+
+        if (normalizedInput.equals("SEARCH")) {
+            return "FIND";
+        }
+
+        if (normalizedInput.equals("TICK")) {
+            return "MARK";
+        }
+
+        if (normalizedInput.equals("UNTICK")) {
+            return "UNMARK";
+        }
+        return null;
     }
 }

@@ -19,9 +19,8 @@ public class ListCommand extends Command {
     @Override
     public CommandResult execute(TaskStorage tasks, Responder responder,
                         TaskFileRepository repository) {
-        return new CommandResult(
-                responder.respondList(tasks.getTasks()),
-                false
-        );
+        return CommandResult.success(
+                ResponseMessage.info(
+                        responder.respondList(tasks.getTasks())));
     }
 }

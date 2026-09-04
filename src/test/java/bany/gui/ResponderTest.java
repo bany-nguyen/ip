@@ -35,7 +35,7 @@ class ResponderTest {
                 responder.respondInvalidDateTime());
         assertEquals("An event's end date-time cannot be before its start date-time!",
                 responder.respondInvalidEventRange());
-        assertEquals("Invalid command. Try again.", responder.respondInvalidCommand());
+        assertEquals("Invalid command. Please try again.", responder.respondInvalidCommand());
         assertEquals("Your query does not match any task in the current task list!",
                 responder.respondNoSuchTask());
         assertEquals("Error writing task to history file!",
@@ -83,6 +83,6 @@ class ResponderTest {
                         + "The task will still be added.", responder.respondTagWarning());
         assertEquals("Command not found. Do you mean LIST?",
                 responder.respondInvalidCommand("LIST"));
-        assertEquals("Invalid command. Try again.", responder.respondInvalidCommand(null));
+        assertEquals("Invalid command. Please try again.", responder.respondInvalidCommand(null));
     }
 }

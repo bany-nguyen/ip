@@ -10,10 +10,14 @@ import bany.tasks.Task;
 
 /** Maintains the in-memory ordered list of tasks used by Bany. */
 public class TaskStorage {
-    /** Tasks in the order in which they are displayed and indexed. */
+    /**
+     * Tasks in the order in which they are displayed and indexed.
+     */
     private final List<Task> taskList;
 
-    /** Creates an empty task list. */
+    /**
+     * Creates an empty task list.
+     */
     public TaskStorage() {
         this.taskList = new ArrayList<>(100);
     }
@@ -22,7 +26,7 @@ public class TaskStorage {
      * Adds a task while enforcing non-null and unique task IDs.
      *
      * @param task task to add.
-     * @throws NullPointerException if {@code task} is null.
+     * @throws NullPointerException     if {@code task} is null.
      * @throws IllegalArgumentException if another task has the same ID.
      */
     public void addTask(Task task) {
@@ -37,7 +41,7 @@ public class TaskStorage {
      * Replaces the current list with tasks loaded from storage.
      *
      * @param tasks tasks restored from the data file.
-     * @throws NullPointerException if {@code tasks} is null.
+     * @throws NullPointerException     if {@code tasks} is null.
      * @throws IllegalArgumentException if the list contains a null task or duplicate ID.
      */
     public void replaceTasks(List<Task> tasks) {
@@ -59,22 +63,13 @@ public class TaskStorage {
      * Returns the task at a zero-based list index.
      *
      * @param index zero-based task index.
-     * @return task at the requested index.
-     * @throws IndexOutOfBoundsException if the index is outside the list.
+     * @return task at the requested index, or {@code null} if the index is invalid.
      */
     public Task getTask(int index) {
+        if (index < 0 || index >= taskList.size()) {
+            return null;
+        }
         return taskList.get(index);
-    }
-
-    /**
-     * Removes and returns the task at a zero-based list index.
-     *
-     * @param index zero-based task index.
-     * @return removed task.
-     * @throws IndexOutOfBoundsException if the index is outside the list.
-     */
-    public Task removeTask(int index) {
-        return taskList.remove(index);
     }
 
     /**
@@ -138,5 +133,22 @@ public class TaskStorage {
         Task task = getTask(taskNo);
         taskList.remove(task);
         return task;
+    }
+
+    /**
+     * Inserts a task at a specific list position, such as when undoing a failed deletion.
+     *
+     * @param index zero-based insertion position.
+     * @param task task to insert.
+     * @throws NullPointerException if {@code task} is null.
+     * @throws IndexOutOfBoundsException if the index is outside the insertion range.
+     */
+    public void insertTask(int index, Task task) {
+        Objects.requireNonNull(task, "Task cannot be null.");
+        if (index < 0 || index > getSize()) {
+            throw new IndexOutOfBoundsException(
+                    String.format("Index %d out of bounds for insertion into size %d", index, getSize()));
+        }
+        taskList.add(index, task);
     }
 }

@@ -20,7 +20,7 @@ import javafx.scene.layout.HBox;
  * children to place the avatar on the opposite side of the message.</p>
  */
 public class DialogBox extends HBox {
-    /** Label that displays the message text. */
+    /** Selectable text area that displays the message text. */
     @FXML
     private TextArea dialog;
     /** Image view that displays the sender avatar. */

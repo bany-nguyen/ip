@@ -27,34 +27,40 @@ public class UnmarkCommand extends TaskIndexCommand {
      */
     @Override
     public CommandResult execute(TaskStorage tasks, Responder responder,
-                        TaskFileRepository repository) {
-        Integer taskIndex = getTaskIndex(responder);
+                                 TaskFileRepository repository) {
+        Integer taskIndex = getTaskIndex();
         if (taskIndex == null) {
-            return new CommandResult(
-                    responder.respondInvalidCommand(),
-                    false
-            );
+            return CommandResult.error(
+                    ResponseMessage.error(responder.respondInvalidCommand()));
         }
 
-        Task task = tasks.unmarkTask(taskIndex);
+        Task task = tasks.getTask(taskIndex);
+
         if (task == null) {
-            return new CommandResult(
-                    responder.respondOutOfBoundIndex("unmark", tasks.getSize()),
-                    false
-            );
+            return CommandResult.error(
+                    ResponseMessage.error(
+                            responder.respondOutOfBoundIndex("unmark", tasks.getSize())));
         }
+
+        boolean wasMarked = task.isDone();
+
+        task.unmark();
+
 
         try {
             saveTasks(tasks, responder, repository);
-            return new CommandResult(
-                    responder.respondUnmarkTask(task),
-                    false
-            );
+            return CommandResult.success(
+                    ResponseMessage.info(
+                            responder.respondUnmarkTask(task)));
         } catch (IOException e) {
-            return new CommandResult(
-                    Responder.ErrorResponder.respondFileUpdateError(),
-                    false
-            );
+            if (wasMarked) {
+                task.mark();
+            } else {
+                task.unmark();
+            }
+            return CommandResult.error(
+                    ResponseMessage.error(
+                            Responder.ErrorResponder.respondFileUpdateError()));
         }
     }
 }

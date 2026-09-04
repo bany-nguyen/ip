@@ -28,33 +28,29 @@ public class DeleteCommand extends TaskIndexCommand {
     @Override
     public CommandResult execute(TaskStorage tasks, Responder responder,
                         TaskFileRepository repository) {
-        Integer taskIndex = getTaskIndex(responder);
+        Integer taskIndex = getTaskIndex();
         if (taskIndex == null) {
-            return new CommandResult(
-                    responder.respondInvalidCommand(),
-                    false
+            return CommandResult.error(
+                    ResponseMessage.error(responder.respondInvalidCommand())
             );
         }
 
-        Task task = tasks.deleteTask(taskIndex);
-        if (task == null) {
-            return new CommandResult(
-                    responder.respondOutOfBoundIndex("delete", tasks.getSize()),
-                    false
-            );
+        Task deletedTask = tasks.deleteTask(taskIndex);
+
+        if (deletedTask == null) {
+            return CommandResult.error(
+                    ResponseMessage.error(
+                            responder.respondOutOfBoundIndex("delete", tasks.getSize())));
         }
 
         try {
             saveTasks(tasks, responder, repository);
-            return new CommandResult(
-                    responder.respondDeleteTask(task, tasks.getSize()),
-                    false
-            );
+            return CommandResult.success(
+                    ResponseMessage.info(responder.respondDeleteTask(deletedTask, tasks.getSize())));
         } catch (IOException e) {
-            return new CommandResult(
-                    Responder.ErrorResponder.respondFileUpdateError(),
-                    false
-            );
+            tasks.insertTask(taskIndex, deletedTask);
+            return CommandResult.error(
+                    ResponseMessage.error(Responder.ErrorResponder.respondFileUpdateError()));
         }
     }
 }

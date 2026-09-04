@@ -19,9 +19,7 @@ public class ExitCommand extends Command {
     @Override
     public CommandResult execute(TaskStorage tasks, Responder responder,
                         TaskFileRepository repository) {
-        return new CommandResult(
-                responder.respondGoodbye(),
-                true
-        );
+        return CommandResult.exit(
+                ResponseMessage.info(responder.respondGoodbye()));
     }
 }

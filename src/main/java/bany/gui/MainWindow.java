@@ -1,9 +1,11 @@
 package bany.gui;
 
+import java.util.List;
 import java.util.Objects;
 
 import bany.BanyService;
 import bany.commands.CommandResult;
+import bany.commands.ResponseMessage;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -76,14 +78,21 @@ public class MainWindow extends AnchorPane {
             return;
         }
 
-        CommandResult commandResult = banyService.executeCommand(userInput.getText());
-        String response = commandResult.message();
-        boolean isExit = commandResult.shouldExit();
-
-        dialogContainer.getChildren().addAll(
-                DialogBox.getUserDialog(input, userImage),
-                DialogBox.getBotDialog(response, banyImage)
+        dialogContainer.getChildren().add(
+                DialogBox.getUserDialog(input, userImage)
         );
+
+        CommandResult commandResult = banyService.executeCommand(userInput.getText());
+        List<ResponseMessage> responses = commandResult.messages();
+
+        for (ResponseMessage response : responses) {
+            dialogContainer.getChildren().add(
+                    DialogBox.getBotDialog(response.text(), banyImage)
+            );
+
+        }
+
+        boolean isExit = commandResult.shouldExit();
 
         if (isExit) {
             PauseTransition delay = new PauseTransition(Duration.seconds(1.5));
@@ -97,7 +106,7 @@ public class MainWindow extends AnchorPane {
     /** Adds Bany's initial greeting to the conversation history. */
     public void showWelcomeMessage() {
         dialogContainer.getChildren().addAll(
-                DialogBox.getBotDialog(banyService.getWelcomeMessage(), banyImage)
+                DialogBox.getBotDialog(banyService.getWelcomeMessage().text(), banyImage)
         );
     }
 }

@@ -48,41 +48,46 @@ public class AddCommand extends Command {
     public CommandResult execute(TaskStorage tasks, Responder responder,
                         TaskFileRepository repository) {
         String type = values.get("command");
-        String duplicateTag = validator.findDuplicateCriticalTag(type, tagNames);
-        if (duplicateTag != null) {
-            return new CommandResult(
-                    responder.respondDuplicateTag(duplicateTag),
-                    false
-            );
+        String duplicatedCriticalTags = validator.findDuplicateCriticalTag(type, tagNames);
+
+        if (duplicatedCriticalTags != null) {
+            return CommandResult.error(
+                    ResponseMessage.error(
+                            responder.respondDuplicateTag(duplicatedCriticalTags)));
         }
+
         TaskCreationResult creationResult = createTask(responder);
         if (!creationResult.isSuccessful()) {
-            return new CommandResult(
-                    creationResult.validationMessage(),
-                    false
-            );
+            return CommandResult.error(
+                    ResponseMessage.error(creationResult.validationMessage()));
         }
+
         Task task = creationResult.task();
 
         boolean hasTagWarning = validator.hasTagWarning(type, tagNames);
         tasks.addTask(task);
+
         try {
             saveTasks(tasks, responder, repository);
+            String warning;
             String response = responder.respondAddTask(task, tasks.getSize());
+
             if (hasTagWarning) {
-                response = responder.respondTagWarning() + System.lineSeparator()
-                        + System.lineSeparator() + response;
+                warning = responder.respondTagWarning();
+                return CommandResult.success(
+                        ResponseMessage.warning(warning),
+                        ResponseMessage.info(
+                                responder.respondAddTask(task, tasks.getSize())));
             }
-            return new CommandResult(
-                    response,
-                    false
-            );
+            return CommandResult.success(
+                    ResponseMessage.info(
+                            responder.respondAddTask(task, tasks.getSize())));
+
         } catch (IOException e) {
-            tasks.removeTask(tasks.getSize() - 1);
-            return new CommandResult(
-                    Responder.ErrorResponder.respondFileUpdateError(),
-                    false
-            );
+            tasks.deleteTask(tasks.getSize() - 1);
+            return CommandResult.error(
+                    ResponseMessage.error(
+                            Responder.ErrorResponder.respondFileUpdateError()));
         }
     }
 

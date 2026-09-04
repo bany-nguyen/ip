@@ -166,7 +166,7 @@ public class Responder {
      * @return invalid-command message.
      */
     public String respondInvalidCommand() {
-        return "Invalid command. Try again.";
+        return "Invalid command. Please try again.";
     }
 
     /**

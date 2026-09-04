@@ -2,7 +2,6 @@ package bany.commands;
 
 import java.util.Map;
 
-import bany.gui.Responder;
 import bany.utilities.Helper;
 
 /**
@@ -24,14 +23,12 @@ public abstract class TaskIndexCommand extends Command {
     /**
      * Converts the one-based number typed by the user into a zero-based index.
      *
-     * @param responder response builder used for invalid-input feedback.
      * @return zero-based task index, or null if the input is invalid.
      */
-    protected Integer getTaskIndex(Responder responder) {
+    protected Integer getTaskIndex() {
         String description = values.get("description");
         if (description == null || description.isBlank()
                 || !Helper.isInteger(description)) {
-            responder.respondInvalidCommand();
             return null;
         }
         return Integer.parseInt(description) - 1;
