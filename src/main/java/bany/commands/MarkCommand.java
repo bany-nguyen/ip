@@ -28,8 +28,9 @@ public class MarkCommand extends TaskIndexCommand {
     @Override
     public CommandResult execute(TaskStorage tasks, Responder responder,
                         TaskFileRepository repository) {
-        Integer taskIndex = getTaskIndex(responder);
-        if (taskIndex == null) {
+        Integer taskIndex = getTaskIndex();
+
+        if (taskIndex == null || taskIndex <= 0) {
             return CommandResult.error(
                     ResponseMessage.error(responder.respondInvalidCommand()));
         }
@@ -49,8 +50,8 @@ public class MarkCommand extends TaskIndexCommand {
 
         try {
             saveTasks(tasks, responder, repository);
-            return CommandResult.error(
-                    ResponseMessage.error(
+            return CommandResult.success(
+                    ResponseMessage.info(
                             responder.respondMarkTask(task)));
         } catch (IOException e) {
             if (wasMarked) {

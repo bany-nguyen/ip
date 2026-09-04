@@ -28,7 +28,7 @@ public class DeleteCommand extends TaskIndexCommand {
     @Override
     public CommandResult execute(TaskStorage tasks, Responder responder,
                         TaskFileRepository repository) {
-        Integer taskIndex = getTaskIndex(responder);
+        Integer taskIndex = getTaskIndex();
         if (taskIndex == null) {
             return CommandResult.error(
                     ResponseMessage.error(responder.respondInvalidCommand())

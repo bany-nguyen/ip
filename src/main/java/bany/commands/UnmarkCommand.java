@@ -28,7 +28,7 @@ public class UnmarkCommand extends TaskIndexCommand {
     @Override
     public CommandResult execute(TaskStorage tasks, Responder responder,
                                  TaskFileRepository repository) {
-        Integer taskIndex = getTaskIndex(responder);
+        Integer taskIndex = getTaskIndex();
         if (taskIndex == null) {
             return CommandResult.error(
                     ResponseMessage.error(responder.respondInvalidCommand()));
@@ -49,9 +49,9 @@ public class UnmarkCommand extends TaskIndexCommand {
 
         try {
             saveTasks(tasks, responder, repository);
-            return CommandResult.error(
-                    ResponseMessage.error(
-                            responder.respondMarkTask(task)));
+            return CommandResult.success(
+                    ResponseMessage.info(
+                            responder.respondUnmarkTask(task)));
         } catch (IOException e) {
             if (wasMarked) {
                 task.mark();

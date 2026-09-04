@@ -87,7 +87,7 @@ public class MainWindow extends AnchorPane {
 
         for (ResponseMessage response : responses) {
             dialogContainer.getChildren().add(
-                    DialogBox.getBotDialog(response.text(), userImage)
+                    DialogBox.getBotDialog(response.text(), banyImage)
             );
 
         }
