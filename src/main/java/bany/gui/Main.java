@@ -38,7 +38,7 @@ public class Main extends Application {
             AnchorPane ap = fxmlLoader.load();
             Scene scene = new Scene(ap);
             stage.setScene(scene);
-            fxmlLoader.<MainWindow>getController().setBanyGuiService(banyService);
+            fxmlLoader.<MainWindow>getController().setBanyService(banyService);
             repository.load(taskStorage);
             fxmlLoader.<MainWindow>getController().showWelcomeMessage();
             stage.show();

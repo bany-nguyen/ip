@@ -30,7 +30,7 @@ public final class CommandStorage {
      * @param word command word to check.
      * @return true if the word creates a task.
      */
-    public static boolean checkValidTaskWord(String word) {
+    public static boolean isValidTaskWord(String word) {
         return VALID_TASK_COMMANDS.contains(word);
     }
 
@@ -40,7 +40,7 @@ public final class CommandStorage {
      * @param word command word to check.
      * @return true if the word performs an action.
      */
-    public static boolean checkValidActionWord(String word) {
+    public static boolean isValidActionWord(String word) {
         return VALID_ACTION_COMMANDS.contains(word);
     }
 
@@ -50,8 +50,8 @@ public final class CommandStorage {
      * @param word command word to check.
      * @return true if the word is recognized.
      */
-    public static boolean checkValidAllCommandWord(String word) {
-        return checkValidTaskWord(word) || checkValidActionWord(word);
+    public static boolean isValidAllCommandWord(String word) {
+        return isValidTaskWord(word) || isValidActionWord(word);
     }
 
     /**
