@@ -91,34 +91,8 @@ public class InputParser {
         }
 
         List<String> tagNames = new ArrayList<>();
-        while (tagStart < arguments.length()) {
-            int tagNameStart = tagStart + 1;
-            int tagNameEnd = tagNameStart;
-
-            while (tagNameEnd < arguments.length()
-                    && !Character.isWhitespace(arguments.charAt(tagNameEnd))
-                    && arguments.charAt(tagNameEnd) != '/') {
-                tagNameEnd++;
-            }
-
-            if (tagNameEnd == tagNameStart) {
-                throw new IllegalArgumentException("Tag name cannot be empty");
-            }
-
-            tagNames.add(arguments.substring(tagNameStart, tagNameEnd)
-                    .toLowerCase(Locale.ROOT));
-
-            int valueStart = tagNameEnd;
-            while (valueStart < arguments.length()
-                    && Character.isWhitespace(arguments.charAt(valueStart))) {
-                valueStart++;
-            }
-
-            int nextTag = findTagStart(arguments, valueStart);
-            if (nextTag == -1) {
-                return tagNames;
-            }
-            tagStart = nextTag;
+        for (ParsedTag tag : parseTagEntries(arguments, tagStart)) {
+            tagNames.add(tag.name());
         }
         return tagNames;
     }
@@ -132,6 +106,14 @@ public class InputParser {
      */
     private static void parseTags(String arguments, int firstTag,
             Map<String, String> result) {
+        for (ParsedTag tag : parseTagEntries(arguments, firstTag)) {
+            result.put(tag.name(), tag.value());
+        }
+    }
+
+    /** Parses each slash-prefixed tag once for all parser consumers. */
+    private static List<ParsedTag> parseTagEntries(String arguments, int firstTag) {
+        List<ParsedTag> tags = new ArrayList<>();
         int tagStart = firstTag;
         while (tagStart < arguments.length()) {
             int tagNameStart = tagStart + 1;
@@ -157,14 +139,14 @@ public class InputParser {
 
             int nextTag = findTagStart(arguments, valueStart);
             int valueEnd = nextTag == -1 ? arguments.length() : nextTag;
-            String tagValue = arguments.substring(valueStart, valueEnd).trim();
-            result.put(tagName, tagValue);
+            tags.add(new ParsedTag(tagName, arguments.substring(valueStart, valueEnd).trim()));
 
             if (nextTag == -1) {
-                return;
+                return tags;
             }
             tagStart = nextTag;
         }
+        return tags;
     }
 
     /**
@@ -191,6 +173,10 @@ public class InputParser {
      */
     private static int findTagStart(String input, int fromIndex) {
         return input.indexOf('/', fromIndex);
+    }
+
+    /** Stores the normalized name and value of one parsed tag. */
+    private record ParsedTag(String name, String value) {
     }
 
 }

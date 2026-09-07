@@ -142,7 +142,7 @@ class BanyServiceTest {
 
         assertTrue(result.messages().stream()
                 .anyMatch(message -> message.text().contains("rescheduled")));
-        Deadline deadline = (Deadline) taskStorage.getTask(0).orElse(null);
+        Deadline deadline = (Deadline) taskStorage.getTask(0).orElseThrow();
         assertEquals("22-02-2026 21:03", deadline.getBy());
     }
 
