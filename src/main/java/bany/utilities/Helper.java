@@ -32,7 +32,7 @@ public class Helper {
      * the user's input.
      *
      * <p>Command matching is case-insensitive. If multiple commands have the
-     * same distance, the first command in {@link CommandStorage#getAllCommands()}
+     * same distance, the first command in {@link CommandCatalog#getAllCommands()}
      * is returned.</p>
      *
      * @param input command text entered by the user.
@@ -53,7 +53,7 @@ public class Helper {
         String closestCommand = null;
         int smallestDistance = Integer.MAX_VALUE;
 
-        for (String command : CommandStorage.getAllCommands()) {
+        for (String command : CommandCatalog.getAllCommands()) {
             int distance = StringUtils.getLevenshteinDistance(normalizedInput, command);
             if (distance < smallestDistance) {
                 smallestDistance = distance;
