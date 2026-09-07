@@ -81,6 +81,9 @@ class ResponderTest {
                 responder.respondOutOfBoundIndex("delete", 2));
         assertEquals("Warning: the command contains extra tags or tags in an unexpected order.\n"
                         + "The task will still be added.", responder.respondTagWarning());
+        assertEquals("Warning: the command contains extra tags or tags in an unexpected order.\n"
+                        + "The task will still be rescheduled.",
+                responder.respondRescheduleTagWarning());
         assertEquals("Command not found. Do you mean LIST?",
                 responder.respondInvalidCommand("LIST"));
         assertEquals("Invalid command. Please try again.", responder.respondInvalidCommand(null));

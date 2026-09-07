@@ -98,6 +98,16 @@ public class Responder {
     }
 
     /**
+     * Builds a warning when a reschedule command has extra or misordered tags.
+     *
+     * @return tag warning message for a reschedule command.
+     */
+    public String respondRescheduleTagWarning() {
+        return "Warning: the command contains extra tags or tags in an unexpected order.\n"
+                + "The task will still be rescheduled.";
+    }
+
+    /**
      * Builds an error response for a task index outside the current task list.
      *
      * @param type action that was attempted.
@@ -139,6 +149,16 @@ public class Responder {
     public String respondDeleteTask(Task task, int size) {
         return String.format("Noted. I've removed this task:%n   %s%n"
                 + "Now you have %d tasks in the list.", task, size);
+    }
+
+    /**
+     * Builds confirmation after a task's tag has been updated.
+     *
+     * @param task task whose tag was updated.
+     * @return task-rescheduled response.
+     */
+    public String respondRescheduleTask(Task task) {
+        return String.format("Noted. I've rescheduled this task:%n   %s", task);
     }
 
     /**

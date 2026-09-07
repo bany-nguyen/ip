@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import bany.exceptions.InvalidTaskType;
+import bany.tags.Tag;
 import bany.tasks.Deadline;
 import bany.tasks.Event;
 import bany.tasks.Task;
@@ -49,6 +50,11 @@ public class TaskFileRepository {
         json.put("type", task.getType());
         json.put("description", task.getDescription());
         json.put("done", task.isDone());
+        ObjectNode tags = mapper.createObjectNode();
+        for (Tag tag : task.getTags()) {
+            tags.put(tag.name(), tag.value().orElse(""));
+        }
+        json.set("tags", tags);
         switch (task.getType()) {
             case "TODO":
                 break;
@@ -181,22 +187,24 @@ public class TaskFileRepository {
                 }
                 break;
             case "DEADLINE":
-                if (!json.hasNonNull("by")) {
+                String deadlineValue = getTagValue(json, "by", "by");
+                if (deadlineValue == null) {
                     throw new IOException("Deadline is missing its by field.");
                 }
                 try {
-                    task = new Deadline(description, json.get("by").asText(), reconstructedId);
+                    task = new Deadline(description, deadlineValue, reconstructedId);
                 } catch (IllegalArgumentException e) {
                     throw new IOException("Deadline contains an invalid date-time.", e);
                 }
                 break;
             case "EVENT":
-                if (!json.hasNonNull("from") || !json.hasNonNull("to")) {
+                String eventFrom = getTagValue(json, "from", "from");
+                String eventTo = getTagValue(json, "to", "to");
+                if (eventFrom == null || eventTo == null) {
                     throw new IOException("Event is missing its from or to field.");
                 }
                 try {
-                    task = new Event(description, json.get("from").asText(),
-                            json.get("to").asText(), reconstructedId);
+                    task = new Event(description, eventFrom, eventTo, reconstructedId);
                 } catch (IllegalArgumentException e) {
                     throw new IOException("Event contains an invalid date-time.", e);
                 }
@@ -205,9 +213,75 @@ public class TaskFileRepository {
                 throw new InvalidTaskType("Unknown task type: " + type);
         }
 
+        List<Tag> savedTags = readTags(json);
+        if (!savedTags.isEmpty()) {
+            try {
+                task.updateTags(savedTags);
+            } catch (IllegalArgumentException e) {
+                throw new IOException("Task contains invalid tags.", e);
+            }
+        }
+
         if (json.path("done").asBoolean(false)) {
             task.mark();
         }
         return task;
+    }
+
+    /**
+     * Reads a tag value, falling back to the legacy top-level field.
+     *
+     * @param json saved task object.
+     * @param tagName tag name in the tags object.
+     * @param legacyField old top-level field name.
+     * @return tag value, or null when neither representation contains it.
+     * @throws IOException if the stored value is not textual.
+     */
+    private String getTagValue(JsonNode json, String tagName, String legacyField)
+            throws IOException {
+        JsonNode tags = json.get("tags");
+        if (tags != null && !tags.isObject()) {
+            throw new IOException("Task tags field must be an object.");
+        }
+        if (tags != null && tags.has(tagName)) {
+            JsonNode value = tags.get(tagName);
+            if (!value.isTextual()) {
+                throw new IOException("Task tag values must be text.");
+            }
+            return value.asText();
+        }
+        if (!json.hasNonNull(legacyField)) {
+            return null;
+        }
+        if (!json.get(legacyField).isTextual()) {
+            throw new IOException("Task tag values must be text.");
+        }
+        return json.get(legacyField).asText();
+    }
+
+    /** Reads all tags from the optional generic tags object. */
+    private List<Tag> readTags(JsonNode json) throws IOException {
+        JsonNode tags = json.get("tags");
+        if (tags == null) {
+            return List.of();
+        }
+        if (!tags.isObject()) {
+            throw new IOException("Task tags field must be an object.");
+        }
+
+        List<Tag> savedTags = new ArrayList<>();
+        var fields = tags.fields();
+        while (fields.hasNext()) {
+            var field = fields.next();
+            if (!field.getValue().isTextual()) {
+                throw new IOException("Task tag values must be text.");
+            }
+            try {
+                savedTags.add(new Tag(field.getKey(), field.getValue().asText()));
+            } catch (IllegalArgumentException e) {
+                throw new IOException("Task contains an invalid tag.", e);
+            }
+        }
+        return savedTags;
     }
 }

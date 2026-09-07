@@ -65,4 +65,21 @@ class CommandValidatorTest {
                         "EVENT", List.of("from", "to", "from")))
         );
     }
+
+    @Test
+    void hasRescheduleTagWarning_partialUpdateDoesNotWarnForMissingCriticalTags() {
+        assertFalse(validator.hasRescheduleTagWarning(
+                List.of("from", "to"), List.of("from")));
+    }
+
+    @Test
+    void hasRescheduleTagWarning_misorderedOrExtraTagsReturnsTrue() {
+        boolean hasMisorderedTags = validator.hasRescheduleTagWarning(
+                List.of("from", "to"), List.of("to", "from"));
+        boolean hasExtraTags = validator.hasRescheduleTagWarning(
+                List.of("from", "to"), List.of("from", "note"));
+
+        assertTrue(hasMisorderedTags);
+        assertTrue(hasExtraTags);
+    }
 }

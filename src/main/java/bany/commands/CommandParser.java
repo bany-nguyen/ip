@@ -46,6 +46,7 @@ public class CommandParser {
             case "UNMARK" -> new UnmarkCommand(values);
             case "DELETE" -> new DeleteCommand(values);
             case "FIND" -> new FindCommand(values);
+            case "RESCHEDULE" -> new RescheduleCommand(values, tagNames, validator);
             default -> throw new IllegalArgumentException(
                     "Unsupported command: " + commandName);
         };

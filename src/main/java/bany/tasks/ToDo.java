@@ -1,5 +1,7 @@
 package bany.tasks;
 
+import java.util.List;
+
 /** Represents a task without a deadline or event time range. */
 public class ToDo extends Task {
     /**
@@ -9,7 +11,7 @@ public class ToDo extends Task {
      * @param id task ID.
      */
     public ToDo(String description, int id) {
-        super(id, description);
+        super(id, description, List.of());
     }
 
     /**
@@ -30,6 +32,11 @@ public class ToDo extends Task {
     @Override
     public String getTypeShort() {
         return TaskType.TODO.getTypeShort();
+    }
+
+    @Override
+    public List<String> getCriticalTags() {
+        return List.of();
     }
 
     /**

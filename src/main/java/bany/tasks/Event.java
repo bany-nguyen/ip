@@ -1,21 +1,20 @@
 package bany.tasks;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import bany.parsers.DateTimeParser;
+import bany.tags.Tag;
 
 /** Represents a task that occurs between a start and end date-time. */
 public class Event extends Task {
-    /** Start date-time of the event. */
-    private final LocalDateTime from;
-    /** End date-time of the event. */
-    private final LocalDateTime to;
 
     /**
      * Creates an event from formatted date-time strings.
      *
-     * @param description task description.
+     * @param description event description.
      * @param from event start in {@code dd-MM-yyyy HH:mm} format.
      * @param to event end in {@code dd-MM-yyyy HH:mm} format.
      * @param id task ID.
@@ -30,15 +29,15 @@ public class Event extends Task {
     /**
      * Creates an event from typed date-time values.
      *
-     * @param description task description.
+     * @param description event description.
      * @param from event start date-time.
      * @param to event end date-time.
      * @param id task ID.
      */
     public Event(String description, LocalDateTime from, LocalDateTime to, int id) {
-        super(id, description);
-        this.from = Objects.requireNonNull(from, "Event start date-time cannot be null.");
-        this.to = Objects.requireNonNull(to, "Event end date-time cannot be null.");
+        super(id, description, List.of(
+                createDateTag("from", from),
+                createDateTag("to", to)));
         validateDateRange(from, to);
     }
 
@@ -61,7 +60,7 @@ public class Event extends Task {
      * @return formatted event start date-time.
      */
     public String getFrom() {
-        return DateTimeParser.formatLocalDateTime(from);
+        return DateTimeParser.formatLocalDateTime(getFromDateTime());
     }
 
     /**
@@ -70,7 +69,7 @@ public class Event extends Task {
      * @return formatted event end date-time.
      */
     public String getTo() {
-        return DateTimeParser.formatLocalDateTime(to);
+        return DateTimeParser.formatLocalDateTime(getToDateTime());
     }
 
     /**
@@ -79,7 +78,7 @@ public class Event extends Task {
      * @return event start date-time.
      */
     public LocalDateTime getFromDateTime() {
-        return from;
+        return getDateTimeValue("from");
     }
 
     /**
@@ -88,7 +87,7 @@ public class Event extends Task {
      * @return event end date-time.
      */
     public LocalDateTime getToDateTime() {
-        return to;
+        return getDateTimeValue("to");
     }
 
     /**
@@ -101,7 +100,7 @@ public class Event extends Task {
     }
 
     /**
-     * Returns the abbreviated task type marker.
+     * Returns the abbreviated type marker.
      *
      * @return {@code E}.
      */
@@ -120,4 +119,74 @@ public class Event extends Task {
         return TaskType.EVENT.getType();
     }
 
+    /**
+     * Returns the names of the tags that define an event's schedule.
+     *
+     * @return list containing {@code from} and {@code to}.
+     */
+    @Override
+    public List<String> getCriticalTags() {
+        return List.of("from", "to");
+    }
+
+    /**
+     * Replaces the event start through the common tag storage.
+     *
+     * @param from new event start date-time.
+     */
+    public void setFrom(LocalDateTime from) {
+        updateTags(List.of(createDateTag("from", from)));
+    }
+
+    /**
+     * Replaces the event end through the common tag storage.
+     *
+     * @param to new event end date-time.
+     */
+    public void setTo(LocalDateTime to) {
+        updateTags(List.of(createDateTag("to", to)));
+    }
+
+    /** Validates both critical event tags and their date range. */
+    @Override
+    protected void validateTags(List<Tag> candidate) {
+        Optional<Tag> fromTag = findTag(candidate, "from");
+        Optional<Tag> toTag = findTag(candidate, "to");
+
+        if (fromTag.isEmpty() || toTag.isEmpty()
+                || fromTag.get().value().isEmpty() || toTag.get().value().isEmpty()) {
+            throw new IllegalArgumentException("Event requires /from and /to values.");
+        }
+
+        LocalDateTime from = parseDateTime(fromTag.get());
+        LocalDateTime to = parseDateTime(toTag.get());
+        validateDateRange(from, to);
+    }
+
+    /** Reads and parses one of the event's date-time tags. */
+    private LocalDateTime getDateTimeValue(String tagName) {
+        Tag tag = getTag(tagName).orElseThrow(() ->
+                new IllegalStateException("Event is missing its " + tagName + " tag."));
+        return parseDateTime(tag);
+    }
+
+    /** Parses a date-time tag after checking that it has a body. */
+    private static LocalDateTime parseDateTime(Tag tag) {
+        String value = tag.value().orElseThrow(() ->
+                new IllegalStateException("Event tag has no date-time value."));
+        return DateTimeParser.createLocalDateTime(value);
+    }
+
+    /** Finds a tag by its normalised name in a candidate list. */
+    private static Optional<Tag> findTag(List<Tag> candidate, String name) {
+        return candidate.stream()
+                .filter(tag -> tag.name().equals(name))
+                .findFirst();
+    }
+
+    /** Creates a date-time tag after checking its value. */
+    private static Tag createDateTag(String name, LocalDateTime value) {
+        return new Tag(name, DateTimeParser.formatLocalDateTime(
+                Objects.requireNonNull(value, "Event date-time cannot be null.")));
+    }
 }

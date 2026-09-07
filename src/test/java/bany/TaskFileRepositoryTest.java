@@ -7,10 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import bany.tags.Tag;
 import bany.tasks.Deadline;
 import bany.tasks.Task;
 import bany.tasks.ToDo;
@@ -74,5 +76,22 @@ class TaskFileRepositoryTest {
         assertEquals(2, taskStorage.getTask(1).getId());
         assertEquals("Submit report", taskStorage.getTask(1).getDescription());
         assertTrue(taskStorage.getTask(1).isDone());
+    }
+
+    @Test
+    void saveThenLoad_preservesGenericTags() throws IOException {
+        TaskStorage savedStorage = new TaskStorage();
+        Task todo = new ToDo("Read book", 1);
+        todo.updateTags(List.of(new Tag("urgent"), new Tag("priority", "high")));
+        savedStorage.addTask(todo);
+        TaskFileRepository repository = new TaskFileRepository(
+                temporaryDirectory.resolve("bany.txt"));
+
+        repository.save(savedStorage);
+
+        TaskStorage loadedStorage = new TaskStorage();
+        repository.load(loadedStorage);
+
+        assertEquals(todo.getTags(), loadedStorage.getTask(0).getTags());
     }
 }

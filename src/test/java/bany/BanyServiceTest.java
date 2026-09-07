@@ -13,6 +13,8 @@ import org.junit.jupiter.api.io.TempDir;
 import bany.commands.CommandParser;
 import bany.commands.CommandResult;
 import bany.gui.Responder;
+import bany.tasks.Deadline;
+import bany.tasks.Event;
 import bany.utilities.CommandValidator;
 
 /** Tests command outcomes returned through {@link BanyService}. */
@@ -129,5 +131,89 @@ class BanyServiceTest {
         banyService.executeCommand("reminder read book");
 
         assertEquals(0, taskStorage.getSize());
+    }
+
+    @Test
+    void executeCommand_rescheduleDeadline_updatesByTag() {
+        banyService.executeCommand("deadline submit report /by 21-02-2026 21:03");
+
+        CommandResult result = banyService.executeCommand(
+                "reschedule 1 /by 22-02-2026 21:03");
+
+        assertTrue(result.messages().stream()
+                .anyMatch(message -> message.text().contains("rescheduled")));
+        assertEquals("22-02-2026 21:03", ((Deadline) taskStorage.getTask(0)).getBy());
+    }
+
+    @Test
+    void executeCommand_rescheduleEventWithMisorderedCriticalTags_updatesWithWarning() {
+        banyService.executeCommand(
+                "event meeting /from 21-02-2026 21:03 /to 22-02-2026 21:03");
+
+        CommandResult result = banyService.executeCommand(
+                "reschedule 1 /to 24-02-2026 21:03 /from 23-02-2026 21:03");
+
+        assertTrue(result.messages().stream()
+                .anyMatch(message -> message.text().contains("Warning:")));
+        Event event = (Event) taskStorage.getTask(0);
+        assertEquals("23-02-2026 21:03", event.getFrom());
+        assertEquals("24-02-2026 21:03", event.getTo());
+    }
+
+    @Test
+    void executeCommand_rescheduleWithNonCriticalTag_updatesWithWarning() {
+        banyService.executeCommand("todo read book");
+
+        CommandResult result = banyService.executeCommand("reschedule 1 /note urgent");
+
+        assertTrue(result.messages().stream()
+                .anyMatch(message -> message.text().contains("Warning:")));
+        assertEquals("urgent", taskStorage.getTask(0).getTag("note")
+                .orElseThrow().value().orElseThrow());
+    }
+
+    @Test
+    void executeCommand_rescheduleDuplicateCriticalTag_rejectsWithoutChangingTask() {
+        banyService.executeCommand("deadline submit report /by 21-02-2026 21:03");
+
+        CommandResult result = banyService.executeCommand(
+                "reschedule 1 /by 22-02-2026 21:03 /BY 23-02-2026 21:03");
+
+        assertEquals("The tag /by can only be used once!", result.messages().get(0).text());
+        assertEquals("21-02-2026 21:03", ((Deadline) taskStorage.getTask(0)).getBy());
+    }
+
+    @Test
+    void executeCommand_rescheduleInvalidEventRange_rejectsWithoutChangingTask() {
+        banyService.executeCommand(
+                "event meeting /from 21-02-2026 21:03 /to 22-02-2026 21:03");
+
+        CommandResult result = banyService.executeCommand(
+                "reschedule 1 /from 24-02-2026 21:03 /to 23-02-2026 21:03");
+
+        assertEquals("An event's end date-time cannot be before its start date-time!",
+                result.messages().get(0).text());
+        Event event = (Event) taskStorage.getTask(0);
+        assertEquals("21-02-2026 21:03", event.getFrom());
+        assertEquals("22-02-2026 21:03", event.getTo());
+    }
+
+    @Test
+    void executeCommand_rescheduleSaveFailure_rollsBackTagUpdate() {
+        TaskStorage failingStorage = new TaskStorage();
+        Event event = new Event("Meeting", "21-02-2026 21:03",
+                "22-02-2026 21:03", 1);
+        failingStorage.addTask(event);
+        BanyService failingService = new BanyService(
+                new TaskFileRepository(temporaryDirectory),
+                failingStorage,
+                new CommandParser(new CommandValidator()),
+                new Responder());
+
+        CommandResult result = failingService.executeCommand(
+                "reschedule 1 /from 20-02-2026 21:03");
+
+        assertEquals("Error writing task to history file!", result.messages().get(0).text());
+        assertEquals("21-02-2026 21:03", event.getFrom());
     }
 }
