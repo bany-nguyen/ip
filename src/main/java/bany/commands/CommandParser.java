@@ -32,6 +32,7 @@ public class CommandParser {
         String commandName = values.get("command");
 
         List<String> tagNames = InputParser.getTagNames(input);
+
         return switch (commandName) {
             case "TODO", "DEADLINE", "EVENT" ->
                 new AddCommand(values, tagNames, validator);
