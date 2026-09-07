@@ -42,11 +42,11 @@ public class CommandParser {
                 new AddCommand(values, tagNames, validator);
             case "BYE" -> new ExitCommand();
             case "LIST" -> new ListCommand();
-            case "MARK" -> new MarkCommand(values);
-            case "UNMARK" -> new UnmarkCommand(values);
-            case "DELETE" -> new DeleteCommand(values);
+            case "MARK", "M" -> new MarkCommand(values);
+            case "UNMARK", "UNM" -> new UnmarkCommand(values);
+            case "DELETE", "DEL" -> new DeleteCommand(values);
             case "FIND" -> new FindCommand(values);
-            case "RESCHEDULE" -> new RescheduleCommand(values, tagNames, validator);
+            case "RESCHEDULE", "RESCHED" -> new RescheduleCommand(values, tagNames, validator);
             default -> throw new IllegalArgumentException(
                     "Unsupported command: " + commandName);
         };
