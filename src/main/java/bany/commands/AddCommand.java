@@ -85,6 +85,7 @@ public class AddCommand extends Command {
     private CommandResult executeSuccessfulCreation(String type, Task task,
                                                     TaskStorage tasks, Responder responder,
                                                     TaskFileRepository repository) {
+
         boolean hasTagWarning = validator.hasTagWarning(type, tagNames);
         tasks.addTask(task);
 
@@ -94,13 +95,15 @@ public class AddCommand extends Command {
                     responder.respondAddTask(task, tasks.getSize()));
             if (hasTagWarning) {
                 return CommandResult.success(
-                        ResponseMessage.warning(responder.respondTagWarning()), taskMessage);
+                        ResponseMessage.warning(
+                                responder.respondTagWarning()), taskMessage);
             }
             return CommandResult.success(taskMessage);
         } catch (IOException e) {
             tasks.deleteTask(tasks.getSize() - 1);
             return CommandResult.error(
-                    ResponseMessage.error(Responder.ErrorResponder.respondFileUpdateError()));
+                    ResponseMessage.error(
+                            Responder.ErrorResponder.respondFileUpdateError()));
         }
     }
 
@@ -141,7 +144,8 @@ public class AddCommand extends Command {
 
         try {
             LocalDateTime dateTime = DateTimeParser.createLocalDateTime(by);
-            return new TaskCreationSuccess(new Deadline(description, dateTime, Task.allocateId()));
+            return new TaskCreationSuccess(
+                    new Deadline(description, dateTime, Task.allocateId()));
         } catch (IllegalArgumentException e) {
             return new TaskCreationFailure(responder.respondInvalidDateTime());
         }
@@ -164,11 +168,14 @@ public class AddCommand extends Command {
         try {
             LocalDateTime fromDateTime = DateTimeParser.createLocalDateTime(from);
             LocalDateTime toDateTime = DateTimeParser.createLocalDateTime(to);
+
             if (toDateTime.isBefore(fromDateTime)) {
                 return new TaskCreationFailure(responder.respondInvalidEventRange());
             }
-            return new TaskCreationSuccess(new Event(description, fromDateTime, toDateTime,
-                    Task.allocateId()));
+
+            return new TaskCreationSuccess(
+                    new Event(description, fromDateTime, toDateTime, Task.allocateId()));
+
         } catch (IllegalArgumentException e) {
             return new TaskCreationFailure(responder.respondInvalidDateTime());
         }
