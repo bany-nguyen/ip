@@ -32,7 +32,7 @@ public class CommandParser {
         Map<String, String> values = InputParser.parse(input);
         String commandName = values.get("command");
 
-        if (!CommandStorage.checkValidAllCommandWord(commandName)) {
+        if (!CommandStorage.isValidAllCommandWord(commandName)) {
             return new InvalidCommand(Helper.getClosestWordMatch(commandName));
         }
 
