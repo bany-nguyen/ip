@@ -155,7 +155,7 @@ class BanyServiceTest {
 
         assertTrue(result.messages().stream()
                 .anyMatch(message -> message.text().contains("Warning:")));
-        Event event = (Event) taskStorage.getTask(0);
+        Event event = (Event) taskStorage.getTask(0).orElse(null);
         assertEquals("23-02-2026 21:03", event.getFrom());
         assertEquals("24-02-2026 21:03", event.getTo());
     }
@@ -168,7 +168,7 @@ class BanyServiceTest {
 
         assertTrue(result.messages().stream()
                 .anyMatch(message -> message.text().contains("Warning:")));
-        assertEquals("urgent", taskStorage.getTask(0).getTag("note")
+        assertEquals("urgent", taskStorage.getTask(0).get().getTag("note")
                 .orElseThrow().value().orElseThrow());
     }
 
@@ -180,7 +180,7 @@ class BanyServiceTest {
                 "reschedule 1 /by 22-02-2026 21:03 /BY 23-02-2026 21:03");
 
         assertEquals("The tag /by can only be used once!", result.messages().get(0).text());
-        assertEquals("21-02-2026 21:03", ((Deadline) taskStorage.getTask(0)).getBy());
+        assertEquals("21-02-2026 21:03", ((Deadline) taskStorage.getTask(0).get()).getBy());
     }
 
     @Test
@@ -193,7 +193,7 @@ class BanyServiceTest {
 
         assertEquals("An event's end date-time cannot be before its start date-time!",
                 result.messages().get(0).text());
-        Event event = (Event) taskStorage.getTask(0);
+        Event event = (Event) taskStorage.getTask(0).get();
         assertEquals("21-02-2026 21:03", event.getFrom());
         assertEquals("22-02-2026 21:03", event.getTo());
     }

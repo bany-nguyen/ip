@@ -2,6 +2,7 @@ package bany.commands;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 
 import bany.TaskFileRepository;
 import bany.TaskStorage;
@@ -35,13 +36,15 @@ public class MarkCommand extends TaskIndexCommand {
                     ResponseMessage.error(responder.respondInvalidCommand()));
         }
 
-        Task task = tasks.getTask(taskIndex);
+        Optional<Task> optionalTask = tasks.getTask(taskIndex);
 
-        if (task == null) {
+        if (optionalTask.isEmpty()) {
             return CommandResult.error(
                     ResponseMessage.error(
                             responder.respondOutOfBoundIndex("mark", tasks.getSize())));
         }
+
+        Task task = optionalTask.get();
 
         boolean wasMarked = task.isDone();
 

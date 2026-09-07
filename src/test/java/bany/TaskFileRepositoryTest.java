@@ -39,9 +39,9 @@ class TaskFileRepositoryTest {
         repository.load(loadedStorage);
 
         assertEquals(2, loadedStorage.getSize());
-        assertEquals("Read book", loadedStorage.getTask(0).getDescription());
-        assertEquals("Submit report", loadedStorage.getTask(1).getDescription());
-        assertTrue(loadedStorage.getTask(1).isDone());
+        assertEquals("Read book", loadedStorage.getTask(0).get().getDescription());
+        assertEquals("Submit report", loadedStorage.getTask(1).get().getDescription());
+        assertTrue(loadedStorage.getTask(1).get().isDone());
     }
 
     @Test
@@ -71,11 +71,11 @@ class TaskFileRepositoryTest {
         repository.load(taskStorage);
 
         assertEquals(2, taskStorage.getSize());
-        assertEquals(1, taskStorage.getTask(0).getId());
-        assertEquals("Read book", taskStorage.getTask(0).getDescription());
-        assertEquals(2, taskStorage.getTask(1).getId());
-        assertEquals("Submit report", taskStorage.getTask(1).getDescription());
-        assertTrue(taskStorage.getTask(1).isDone());
+        assertEquals(1, taskStorage.getTask(0).get().getId());
+        assertEquals("Read book", taskStorage.getTask(0).get().getDescription());
+        assertEquals(2, taskStorage.getTask(1).get().getId());
+        assertEquals("Submit report", taskStorage.getTask(1).get().getDescription());
+        assertTrue(taskStorage.getTask(1).get().isDone());
     }
 
     @Test
@@ -92,6 +92,6 @@ class TaskFileRepositoryTest {
         TaskStorage loadedStorage = new TaskStorage();
         repository.load(loadedStorage);
 
-        assertEquals(todo.getTags(), loadedStorage.getTask(0).getTags());
+        assertEquals(todo.getTags(), loadedStorage.getTask(0).get().getTags());
     }
 }

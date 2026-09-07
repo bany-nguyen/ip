@@ -1,10 +1,6 @@
 package bany;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import bany.tasks.Task;
 
@@ -65,11 +61,11 @@ public class TaskStorage {
      * @param index zero-based task index.
      * @return task at the requested index, or {@code null} if the index is invalid.
      */
-    public Task getTask(int index) {
+    public Optional<Task> getTask(int index) {
         if (index < 0 || index >= taskList.size()) {
-            return null;
+            return Optional.empty();
         }
-        return taskList.get(index);
+        return Optional.of(taskList.get(index));
     }
 
     /**
@@ -100,7 +96,7 @@ public class TaskStorage {
         if (taskNo < 0 || taskNo >= getSize()) {
             return null;
         }
-        Task task = getTask(taskNo);
+        Task task = taskList.get(taskNo);
         task.mark();
         return task;
     }
@@ -115,7 +111,7 @@ public class TaskStorage {
         if (taskNo < 0 || taskNo >= getSize()) {
             return null;
         }
-        Task task = getTask(taskNo);
+        Task task = taskList.get(taskNo);
         task.unmark();
         return task;
     }
@@ -130,7 +126,7 @@ public class TaskStorage {
         if (taskNo < 0 || taskNo >= getSize()) {
             return null;
         }
-        Task task = getTask(taskNo);
+        Task task = taskList.get(taskNo);
         taskList.remove(task);
         return task;
     }

@@ -1,6 +1,7 @@
 package bany.commands;
 
 import java.util.Map;
+import java.util.Optional;
 
 import bany.TaskStorage;
 import bany.gui.Responder;
@@ -53,9 +54,9 @@ public abstract class TaskIndexCommand extends Command {
             return CheckTaskResult.INVALID_INDEX;
         }
 
-        Task task = tasks.getTask(taskIndex);
+        Optional<Task> task = tasks.getTask(taskIndex);
 
-        if (task == null) {
+        if (task.isEmpty()) {
             return CheckTaskResult.INDEX_OUT_OF_BOUND;
         }
 

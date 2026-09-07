@@ -1,10 +1,7 @@
 package bany.commands;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import bany.TaskFileRepository;
 import bany.TaskStorage;
@@ -48,12 +45,15 @@ public class RescheduleCommand extends TaskIndexCommand {
                     ResponseMessage.error(responder.respondInvalidCommand()));
         }
 
-        Task task = tasks.getTask(taskIndex);
-        if (task == null) {
+        Optional<Task> optionalTask = tasks.getTask(taskIndex);
+
+        if (optionalTask.isEmpty()) {
             return CommandResult.error(
                     ResponseMessage.error(
                             responder.respondOutOfBoundIndex("reschedule", tasks.getSize())));
         }
+
+        Task task = optionalTask.get();
 
         if (tagNames.isEmpty()) {
             return CommandResult.error(
