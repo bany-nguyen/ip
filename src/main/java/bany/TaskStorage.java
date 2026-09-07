@@ -65,7 +65,11 @@ public class TaskStorage {
         if (index < 0 || index >= taskList.size()) {
             return Optional.empty();
         }
-        return Optional.of(taskList.get(index));
+        Task task = taskList.get(index);
+        // addTask and replaceTasks reject null tasks, so a valid stored position
+        // must always resolve to an actual task rather than a nullable entry.
+        assert task != null : "Task storage must not contain null tasks.";
+        return Optional.of(task);
     }
 
     /**

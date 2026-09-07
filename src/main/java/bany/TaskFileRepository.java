@@ -57,12 +57,21 @@ public class TaskFileRepository {
         json.set("tags", tags);
         switch (task.getType()) {
             case "TODO":
+                // Each concrete task supplies a fixed type; this guards the internal
+                // type-to-subclass contract before persistence performs a downcast.
+                assert task instanceof ToDo : "A TODO task must be a ToDo instance.";
                 break;
             case "DEADLINE":
+                // The type is produced by Deadline#getType(), so this downcast must
+                // remain valid unless a future Task implementation breaks that contract.
+                assert task instanceof Deadline
+                        : "A DEADLINE task must be a Deadline instance.";
                 Deadline deadline = (Deadline) task;
                 json.put("by", deadline.getBy());
                 break;
             case "EVENT":
+                // See the equivalent DEADLINE assertion above.
+                assert task instanceof Event : "An EVENT task must be an Event instance.";
                 Event event = (Event) task;
                 json.put("from", event.getFrom());
                 json.put("to", event.getTo());
@@ -142,6 +151,10 @@ public class TaskFileRepository {
             tasks.add(fromJson(json, (int) reconstructedId));
             reconstructedId++;
         }
+        // IDs are allocated from one and incremented exactly once per loaded entry.
+        // This protects the ID allocator's next-ID contract from future edits here.
+        assert reconstructedId == (long) tasks.size() + 1
+                : "The next task ID must follow the reconstructed task count.";
         Task.resetIdAllocator(reconstructedId);
         nonNullTaskStorage.replaceTasks(tasks);
     }
