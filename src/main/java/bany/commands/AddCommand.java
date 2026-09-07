@@ -64,46 +64,44 @@ public class AddCommand extends Command {
                             responder.respondDuplicateTag(duplicatedCriticalTags)));
         }
 
-        TaskCreationResult creationResult = createTask(responder);
-
-        switch (creationResult) {
+        return switch (createTask(responder)) {
             case TaskCreationFailure failure -> CommandResult.error(
                     ResponseMessage.error(failure.validationMessage()));
+            case TaskCreationSuccess success -> executeSuccessfulCreation(
+                    type, success.task(), tasks, responder, repository);
+        };
+    }
 
-            case TaskCreationSuccess success -> {
-                boolean hasTagWarning = validator.hasTagWarning(type, tagNames);
-                Task task = success.task();
-                tasks.addTask(task);
+    /**
+     * Stores and persists a validated task, rolling back the in-memory change if saving fails.
+     *
+     * @param type command type used for tag-warning validation.
+     * @param task validated task to add.
+     * @param tasks current task storage.
+     * @param responder response builder used for user-facing messages.
+     * @param repository persistence component.
+     * @return command outcome describing the save or rollback result.
+     */
+    private CommandResult executeSuccessfulCreation(String type, Task task,
+                                                    TaskStorage tasks, Responder responder,
+                                                    TaskFileRepository repository) {
+        boolean hasTagWarning = validator.hasTagWarning(type, tagNames);
+        tasks.addTask(task);
 
-                try {
-                    saveTasks(tasks, responder, repository);
-                    String warning;
-
-                    if (hasTagWarning) {
-                        warning = responder.respondTagWarning();
-                        return CommandResult.success(
-                                ResponseMessage.warning(warning),
-                                ResponseMessage.info(
-                                        responder.respondAddTask(task, tasks.getSize())));
-                    }
-
-                    return CommandResult.success(
-                            ResponseMessage.info(
-                                    responder.respondAddTask(task, tasks.getSize())));
-
-                } catch (IOException e) {
-                    tasks.deleteTask(tasks.getSize() - 1);
-                    return CommandResult.error(
-                            ResponseMessage.error(
-                                    Responder.ErrorResponder.respondFileUpdateError()));
-                }
+        try {
+            saveTasks(tasks, responder, repository);
+            ResponseMessage taskMessage = ResponseMessage.info(
+                    responder.respondAddTask(task, tasks.getSize()));
+            if (hasTagWarning) {
+                return CommandResult.success(
+                        ResponseMessage.warning(responder.respondTagWarning()), taskMessage);
             }
-            default -> CommandResult.error(
-                    ResponseMessage.error(
-                            responder.respondInvalidCommand()));
-
+            return CommandResult.success(taskMessage);
+        } catch (IOException e) {
+            tasks.deleteTask(tasks.getSize() - 1);
+            return CommandResult.error(
+                    ResponseMessage.error(Responder.ErrorResponder.respondFileUpdateError()));
         }
-        return CommandResult.success();
     }
 
     /**
@@ -112,7 +110,7 @@ public class AddCommand extends Command {
      * @param responder response builder used while validating task details.
      * @return a complete task or the user-facing validation message that prevents creation.
      */
-    private TaskCreationResult createTask(Responder responder){
+    private TaskCreationResult createTask(Responder responder) {
         String type = values.get("command");
         String description = values.get("description");
 
@@ -135,7 +133,7 @@ public class AddCommand extends Command {
      * @param responder response builder used while validating the deadline.
      * @return a complete deadline or the validation message that prevents creation.
      */
-    private TaskCreationResult createDeadline (String description, Responder responder){
+    private TaskCreationResult createDeadline(String description, Responder responder) {
         String by = values.get("by");
         if (by == null || by.isBlank()) {
             return new TaskCreationFailure(responder.respondInvalidTaskInitiation());
@@ -156,7 +154,7 @@ public class AddCommand extends Command {
      * @param responder response builder used while validating the event.
      * @return a complete event or the validation message that prevents creation.
      */
-    private TaskCreationResult createEvent (String description, Responder responder){
+    private TaskCreationResult createEvent(String description, Responder responder) {
         String from = values.get("from");
         String to = values.get("to");
         if (from == null || to == null || from.isBlank() || to.isBlank()) {
@@ -194,4 +192,3 @@ public class AddCommand extends Command {
     }
 
 }
-
