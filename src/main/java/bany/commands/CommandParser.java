@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import bany.parsers.InputParser;
-import bany.utilities.CommandStorage;
 import bany.utilities.CommandValidator;
 import bany.utilities.Helper;
 
@@ -32,10 +31,6 @@ public class CommandParser {
         Map<String, String> values = InputParser.parse(input);
         String commandName = values.get("command");
 
-        if (!CommandStorage.checkValidAllCommandWord(commandName)) {
-            return new InvalidCommand(Helper.getClosestWordMatch(commandName));
-        }
-
         List<String> tagNames = InputParser.getTagNames(input);
         return switch (commandName) {
             case "TODO", "DEADLINE", "EVENT" ->
@@ -47,8 +42,7 @@ public class CommandParser {
             case "DELETE", "DEL" -> new DeleteCommand(values);
             case "FIND" -> new FindCommand(values);
             case "RESCHEDULE", "RESCHED" -> new RescheduleCommand(values, tagNames, validator);
-            default -> throw new IllegalArgumentException(
-                    "Unsupported command: " + commandName);
+            default -> new InvalidCommand(Helper.getClosestWordMatch(commandName));
         };
     }
 }
