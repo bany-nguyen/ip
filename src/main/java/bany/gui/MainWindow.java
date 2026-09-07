@@ -64,7 +64,7 @@ public class MainWindow extends AnchorPane {
      *
      * @param banyService configured command-execution service.
      */
-    public void setBanyGuiService(BanyService banyService) {
+    public void setBanyService(BanyService banyService) {
         this.banyService = banyService;
     }
 
