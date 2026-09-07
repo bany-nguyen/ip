@@ -156,6 +156,17 @@ public class TaskFileRepository {
      * @throws InvalidTaskType if the saved type is unsupported.
      */
     private Task fromJson(JsonNode json, int reconstructedId) throws IOException {
+        validateTaskJson(json);
+
+        String type = json.get("type").asText();
+        String description = json.get("description").asText();
+        Task task = createTask(json, type, description, reconstructedId);
+        restoreTaskState(task, json);
+        return task;
+    }
+
+    /** Validates the fields shared by every saved task representation. */
+    private void validateTaskJson(JsonNode json) throws IOException {
         if (json == null || !json.isObject()) {
             throw new IOException("Each saved task must be a JSON object.");
         }
@@ -176,27 +187,28 @@ public class TaskFileRepository {
         if (json.has("done") && !json.get("done").isBoolean()) {
             throw new IOException("Task done field must be a boolean.");
         }
+    }
 
-        Task task;
+    /** Creates a task from its type-specific fields in a saved JSON object. */
+    private Task createTask(JsonNode json, String type, String description,
+                            int reconstructedId) throws IOException {
         switch (type) {
             case "TODO":
                 try {
-                    task = new ToDo(description, reconstructedId);
+                    return new ToDo(description, reconstructedId);
                 } catch (IllegalArgumentException e) {
                     throw new IOException("To-do contains invalid task data.", e);
                 }
-                break;
             case "DEADLINE":
                 String deadlineValue = getTagValue(json, "by", "by");
                 if (deadlineValue == null) {
                     throw new IOException("Deadline is missing its by field.");
                 }
                 try {
-                    task = new Deadline(description, deadlineValue, reconstructedId);
+                    return new Deadline(description, deadlineValue, reconstructedId);
                 } catch (IllegalArgumentException e) {
                     throw new IOException("Deadline contains an invalid date-time.", e);
                 }
-                break;
             case "EVENT":
                 String eventFrom = getTagValue(json, "from", "from");
                 String eventTo = getTagValue(json, "to", "to");
@@ -204,15 +216,17 @@ public class TaskFileRepository {
                     throw new IOException("Event is missing its from or to field.");
                 }
                 try {
-                    task = new Event(description, eventFrom, eventTo, reconstructedId);
+                    return new Event(description, eventFrom, eventTo, reconstructedId);
                 } catch (IllegalArgumentException e) {
                     throw new IOException("Event contains an invalid date-time.", e);
                 }
-                break;
             default:
                 throw new InvalidTaskType("Unknown task type: " + type);
         }
+    }
 
+    /** Restores generic tags and completion state from a saved JSON object. */
+    private void restoreTaskState(Task task, JsonNode json) throws IOException {
         List<Tag> savedTags = readTags(json);
         if (!savedTags.isEmpty()) {
             try {
@@ -225,7 +239,6 @@ public class TaskFileRepository {
         if (json.path("done").asBoolean(false)) {
             task.mark();
         }
-        return task;
     }
 
     /**
