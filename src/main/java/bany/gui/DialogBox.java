@@ -8,7 +8,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -22,10 +22,14 @@ import javafx.scene.layout.HBox;
 public class DialogBox extends HBox {
     /** Selectable text area that displays the message text. */
     @FXML
-    private TextArea dialog;
+    private Label dialog;
     /** Image view that displays the sender avatar. */
     @FXML
     private ImageView displayImage;
+
+    private final static String BANY_FXML_PATH = "/bany/gui/view/DialogBox.fxml";
+
+    private final static String USER_FXML_PATH = "/bany/gui/view/DialogUserBox.fxml";
 
     /**
      * Creates a dialog box from the FXML layout.
@@ -33,9 +37,9 @@ public class DialogBox extends HBox {
      * @param text message text to display.
      * @param image avatar associated with the message.
      */
-    private DialogBox(String text, Image image) {
+    private DialogBox(String text, Image image, String fxmlPath) {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(MainWindow.class.getResource("/bany/gui/view/DialogBox.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(MainWindow.class.getResource(fxmlPath));
             fxmlLoader.setController(this);
             fxmlLoader.setRoot(this);
             fxmlLoader.load();
@@ -63,7 +67,7 @@ public class DialogBox extends HBox {
      * @return user-message dialog box.
      */
     public static DialogBox getUserDialog(String text, Image image) {
-        return new DialogBox(text, image);
+        return new DialogBox(text, image, USER_FXML_PATH);
     }
 
     /**
@@ -74,7 +78,7 @@ public class DialogBox extends HBox {
      * @return Bany-response dialog box.
      */
     public static DialogBox getBotDialog(String text, Image image) {
-        var db = new DialogBox(text, image);
+        var db = new DialogBox(text, image, BANY_FXML_PATH);
         db.flip();
         return db;
     }

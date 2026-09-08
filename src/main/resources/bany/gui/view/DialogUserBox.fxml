@@ -19,7 +19,7 @@
                prefWidth="200"
                maxWidth="200.0"
                textAlignment="JUSTIFY"
-               style="-fx-background-color: white;
+               style="-fx-background-color: #98FB98;
               -fx-background-radius: 14;
               -fx-padding: 8;" />
         <ImageView fx:id="displayImage" fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true" />
