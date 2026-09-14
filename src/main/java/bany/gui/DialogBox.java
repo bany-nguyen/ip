@@ -20,16 +20,15 @@ import javafx.scene.layout.HBox;
  * children to place the avatar on the opposite side of the message.</p>
  */
 public class DialogBox extends HBox {
-    /** Selectable text area that displays the message text. */
+    /** Path to the FXML layout used for Bany responses. */
+    private static final String FXML_PATH = "/bany/gui/view/DialogBox.fxml";
+
+    /** Label that displays the message text. */
     @FXML
     private Label dialog;
     /** Image view that displays the sender avatar. */
     @FXML
     private ImageView displayImage;
-
-    private final static String BANY_FXML_PATH = "/bany/gui/view/DialogBox.fxml";
-
-    private final static String USER_FXML_PATH = "/bany/gui/view/DialogUserBox.fxml";
 
     /**
      * Creates a dialog box from the FXML layout.
@@ -59,6 +58,12 @@ public class DialogBox extends HBox {
         this.getChildren().setAll(tmp);
     }
 
+    private void setUserStyle() {
+        dialog.setStyle("-fx-background-color: #98FB98;"
+                + "-fx-background-radius: 14;"
+                + "-fx-padding: 8;");
+    }
+
     /**
      * Creates a right-aligned dialog box for a user message.
      *
@@ -67,7 +72,9 @@ public class DialogBox extends HBox {
      * @return user-message dialog box.
      */
     public static DialogBox getUserDialog(String text, Image image) {
-        return new DialogBox(text, image, USER_FXML_PATH);
+        var db = new DialogBox(text, image, FXML_PATH);
+        db.setUserStyle();
+        return db;
     }
 
     /**
@@ -78,7 +85,7 @@ public class DialogBox extends HBox {
      * @return Bany-response dialog box.
      */
     public static DialogBox getBotDialog(String text, Image image) {
-        var db = new DialogBox(text, image, BANY_FXML_PATH);
+        var db = new DialogBox(text, image, FXML_PATH);
         db.flip();
         return db;
     }

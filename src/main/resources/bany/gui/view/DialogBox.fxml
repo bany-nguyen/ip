@@ -9,15 +9,15 @@
          maxHeight="1.7976931348623157E308"
          maxWidth="1.7976931348623157E308"
          prefWidth="400.0"
+         stylesheets="@../css/dialog-box.css"
          type="javafx.scene.layout.HBox"
          xmlns="http://javafx.com/javafx/25"
          xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <Label fx:id="dialog"
                wrapText="true"
-               prefHeight="100"
-               prefWidth="200"
-               maxWidth="200.0"
+               prefWidth="300"
+               maxWidth="300.0"
                textAlignment="JUSTIFY"
                style="-fx-background-color: white;
               -fx-background-radius: 14;

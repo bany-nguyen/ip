@@ -15,9 +15,8 @@
     <children>
         <Label fx:id="dialog"
                wrapText="true"
-               prefHeight="100"
-               prefWidth="200"
-               maxWidth="200.0"
+               prefWidth="300"
+               maxWidth="300.0"
                textAlignment="JUSTIFY"
                style="-fx-background-color: #98FB98;
               -fx-background-radius: 14;
