@@ -19,7 +19,6 @@
                wrapText="true"
                prefWidth="300.0"
                maxWidth="300.0"
-               textAlignment="JUSTIFY"
         />
         <ImageView fx:id="displayImage" fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true" />
     </children>

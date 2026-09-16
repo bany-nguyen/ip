@@ -1,1 +1,1 @@
-[{"type":"TODO","description":"run","done":false,"tags":{}},{"type":"EVENT","description":"fight","done":false,"tags":{"from":"22-06-2026 12:00","to":"23-06-2026 21:00"},"from":"22-06-2026 12:00","to":"23-06-2026 21:00"}]
+[{"type":"TODO","description":"run this evening","done":false,"tags":{}},{"type":"DEADLINE","description":"do homework","done":false,"tags":{"by":"22-09-2026 23:59"},"by":"22-09-2026 23:59"},{"type":"DEADLINE","description":"do homework","done":false,"tags":{"by":"22-09-2026 23:59"},"by":"22-09-2026 23:59"}]
