@@ -25,71 +25,72 @@ class ResponderTest {
 
     @Test
     void simpleResponses_returnExpectedText() {
-        assertTrue(responder.respondWelcome().contains("Hello! I'm Bany."));
-        assertEquals("Bye. Hope to see you again soon!", responder.respondGoodbye());
-        assertEquals("Task description cannot be blank!",
+        assertEquals("Hi, I'm Bany.\nLet's keep your tasks growing.\n", responder.respondWelcome());
+        assertEquals("Until next time - your task list will be here when you're ready.",
+                responder.respondGoodbye());
+        assertEquals("I need a task description before I can add it.",
                 responder.respondInvalidTaskDescription());
-        assertEquals("Your tags for the task do not match the requirements!",
+        assertEquals("I couldn't schedule that task because its required tags are missing or invalid.",
                 responder.respondInvalidTaskInitiation());
-        assertEquals("Date-time must use the format dd-MM-yyyy HH:mm!",
+        assertEquals("Use the date-time format dd-MM-yyyy HH:mm.",
                 responder.respondInvalidDateTime());
-        assertEquals("An event's end date-time cannot be before its start date-time!",
+        assertEquals("An event must end after it begins.",
                 responder.respondInvalidEventRange());
-        assertEquals("Invalid command. Please try again.", responder.respondInvalidCommand());
-        assertEquals("Your query does not match any task in the current task list!",
+        assertEquals("I didn't recognize that command. Please try again.", responder.respondInvalidCommand());
+        assertEquals("No tasks on your list match that search.",
                 responder.respondNoSuchTask());
-        assertEquals("Error writing task to history file!",
+        assertEquals("I couldn't save your task list.",
                 Responder.ErrorResponder.respondFileUpdateError());
-        assertEquals("Error loading tasks from the history file!",
+        assertEquals("I couldn't load your task list.",
                 Responder.ErrorResponder.respondFileLoadError());
-        assertEquals("Startup file cannot be read. I will initiate an empty task list. "
-                        + "You can find the original startup file at data/report.",
+        assertEquals("I couldn't read the startup file. I'll begin with an empty task list. "
+                        + "The original file is available at data/report.",
                 Responder.ErrorResponder.respondStartupFileWarning());
         assertTrue(Responder.ErrorResponder.respondStartupRecoveryError().contains("Commands are disabled"));
     }
 
     @Test
     void taskResponses_includeTaskDetailsAndCounts() {
-        assertEquals("Got it. I've added this task:" + System.lineSeparator()
+        assertEquals("Added to your task list:" + System.lineSeparator()
                         + "  [T][  ] Read book" + System.lineSeparator()
-                        + "Now you have 1 tasks in the list.", responder.respondAddTask(task, 1));
-        assertEquals("Nice! I've marked this task as done:" + System.lineSeparator()
+                        + "Your list now holds 1 tasks.", responder.respondAddTask(task, 1));
+        assertEquals("Checked off:" + System.lineSeparator()
                         + "   [T][  ] Read book",
                 responder.respondMarkTask(task));
-        assertEquals("Nice! I've unmarked this task as done:" + System.lineSeparator()
+        assertEquals("Moved back to active tasks:" + System.lineSeparator()
                         + "   [T][  ] Read book",
                 responder.respondUnmarkTask(task));
-        assertEquals("Noted. I've removed this task:" + System.lineSeparator()
+        assertEquals("Removed from your task list:" + System.lineSeparator()
                         + "   [T][  ] Read book" + System.lineSeparator()
-                        + "Now you have 0 tasks in the list.", responder.respondDeleteTask(task, 0));
+                        + "Your list now holds 0 tasks.", responder.respondDeleteTask(task, 0));
+        assertEquals("Schedule refreshed for this task:" + System.lineSeparator()
+                        + "   [T][  ] Read book", responder.respondRescheduleTask(task));
     }
 
     @Test
     void listResponses_numberTasksInOrder() {
         Task secondTask = new ToDo("Submit assignment", 2);
 
-        assertEquals("Here are the tasks in your list:" + System.lineSeparator()
+        assertEquals("Your task list:" + System.lineSeparator()
                         + "1. [T][  ] Read book" + System.lineSeparator()
                         + "2. [T][  ] Submit assignment",
                 responder.respondList(List.of(task, secondTask)));
-        assertEquals("Here are the matching tasks in your list:" + System.lineSeparator()
+        assertEquals("Tasks matching your search:" + System.lineSeparator()
                         + "1.[T][  ] Read book",
                 responder.respondMatchedTasks(List.of(task)));
     }
 
     @Test
     void parameterisedResponses_includeArguments() {
-        assertEquals("The tag /by can only be used once!", responder.respondDuplicateTag("by"));
-        assertEquals("The task that you are trying to delete is not here!"
-                        + " Please enter an integer between 1 and 2",
+        assertEquals("Use the tag /by only once.", responder.respondDuplicateTag("by"));
+        assertEquals("I can't delete that task. Choose a valid task number from 1 to 2.",
                 responder.respondOutOfBoundIndex("delete", 2));
-        assertEquals("Warning: the command contains extra tags or tags in an unexpected order.\n"
-                        + "The task will still be added.", responder.respondTagWarning());
-        assertEquals("Warning: the command contains extra tags or tags in an unexpected order.\n"
-                        + "The task will still be rescheduled.",
+        assertEquals("I found extra or out-of-order tags. The task was still added.",
+                responder.respondTagWarning());
+        assertEquals("I found extra or out-of-order tags. The task was still rescheduled.",
                 responder.respondRescheduleTagWarning());
-        assertEquals("Command not found. Do you mean LIST?",
+        assertEquals("I didn't recognize that command. Did you mean LIST?",
                 responder.respondInvalidCommand("LIST"));
-        assertEquals("Invalid command. Please try again.", responder.respondInvalidCommand(null));
+        assertEquals("I didn't recognize that command. Please try again.", responder.respondInvalidCommand(null));
     }
 }

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import bany.commands.CommandParser;
 import bany.commands.CommandResult;
+import bany.commands.MessageLevel;
 import bany.gui.Responder;
 import bany.tasks.Deadline;
 import bany.tasks.Event;
@@ -39,7 +40,7 @@ class BanyServiceTest {
     void executeCommand_todoWithoutDescription_returnsDescriptionError() {
         CommandResult result = banyService.executeCommand("todo");
 
-        assertEquals("Task description cannot be blank!", result.messages().get(0).text());
+        assertEquals("I need a task description before I can add it.", result.messages().get(0).text());
         assertFalse(result.shouldExit());
         assertEquals(0, taskStorage.getSize());
     }
@@ -49,7 +50,7 @@ class BanyServiceTest {
         CommandResult result = banyService.executeCommand(
                 "deadline run /from 21-02-2026 21:03");
 
-        assertEquals("Your tags for the task do not match the requirements!",
+        assertEquals("I couldn't schedule that task because its required tags are missing or invalid.",
                 result.messages().get(0).text());
         assertFalse(result.shouldExit());
         assertEquals(0, taskStorage.getSize());
@@ -70,7 +71,7 @@ class BanyServiceTest {
                 "event meeting /to 22-02-2026 21:03 /from 21-02-2026 21:03");
 
         assertTrue(result.messages().stream()
-                .anyMatch(message -> message.text().contains("Got it. I've added this task:")));
+                .anyMatch(message -> message.text().contains("Added to your task list:")));
         assertEquals(1, taskStorage.getSize());
     }
 
@@ -120,9 +121,9 @@ class BanyServiceTest {
         CommandResult result = banyService.executeCommand("todo read book /open now /open later");
 
         assertTrue(result.messages().stream()
-                .anyMatch(message -> message.text().contains("Warning: the command contains extra tags")));
+                .anyMatch(message -> message.level() == MessageLevel.WARNING));
         assertTrue(result.messages().stream()
-                .anyMatch(message -> message.text().contains("Got it. I've added this task:")));
+                .anyMatch(message -> message.text().contains("Added to your task list:")));
         assertEquals(1, taskStorage.getSize());
     }
 
@@ -141,7 +142,7 @@ class BanyServiceTest {
                 "reschedule 1 /by 22-02-2026 21:03");
 
         assertTrue(result.messages().stream()
-                .anyMatch(message -> message.text().contains("rescheduled")));
+                .anyMatch(message -> message.text().contains("Schedule refreshed for this task:")));
         Deadline deadline = (Deadline) taskStorage.getTask(0).orElseThrow();
         assertEquals("22-02-2026 21:03", deadline.getBy());
     }
@@ -155,7 +156,7 @@ class BanyServiceTest {
                 "reschedule 1 /to 24-02-2026 21:03 /from 23-02-2026 21:03");
 
         assertTrue(result.messages().stream()
-                .anyMatch(message -> message.text().contains("Warning:")));
+                .anyMatch(message -> message.level() == MessageLevel.WARNING));
         Event event = (Event) taskStorage.getTask(0).orElse(null);
         assertEquals("23-02-2026 21:03", event.getFrom());
         assertEquals("24-02-2026 21:03", event.getTo());
@@ -168,7 +169,7 @@ class BanyServiceTest {
         CommandResult result = banyService.executeCommand("reschedule 1 /note urgent");
 
         assertTrue(result.messages().stream()
-                .anyMatch(message -> message.text().contains("Warning:")));
+                .anyMatch(message -> message.level() == MessageLevel.WARNING));
         assertEquals("urgent", taskStorage.getTask(0).get().getTag("note")
                 .orElseThrow().value().orElseThrow());
     }
@@ -180,7 +181,7 @@ class BanyServiceTest {
         CommandResult result = banyService.executeCommand(
                 "reschedule 1 /by 22-02-2026 21:03 /BY 23-02-2026 21:03");
 
-        assertEquals("The tag /by can only be used once!", result.messages().get(0).text());
+        assertEquals("Use the tag /by only once.", result.messages().get(0).text());
         assertEquals("21-02-2026 21:03", ((Deadline) taskStorage.getTask(0).get()).getBy());
     }
 
@@ -192,7 +193,7 @@ class BanyServiceTest {
         CommandResult result = banyService.executeCommand(
                 "reschedule 1 /from 24-02-2026 21:03 /to 23-02-2026 21:03");
 
-        assertEquals("An event's end date-time cannot be before its start date-time!",
+        assertEquals("An event must end after it begins.",
                 result.messages().get(0).text());
         Event event = (Event) taskStorage.getTask(0).get();
         assertEquals("21-02-2026 21:03", event.getFrom());
@@ -214,7 +215,7 @@ class BanyServiceTest {
         CommandResult result = failingService.executeCommand(
                 "reschedule 1 /from 20-02-2026 21:03");
 
-        assertEquals("Error writing task to history file!", result.messages().get(0).text());
+        assertEquals("I couldn't save your task list.", result.messages().get(0).text());
         assertEquals("21-02-2026 21:03", event.getFrom());
     }
 }
