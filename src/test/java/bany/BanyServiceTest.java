@@ -4,12 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import bany.commands.CommandOutcome;
 import bany.commands.CommandParser;
 import bany.commands.CommandResult;
 import bany.commands.MessageLevel;
@@ -63,6 +65,24 @@ class BanyServiceTest {
         banyService.executeCommand("event meeting /from 21-02-2026 21:03 /to 22-02-2026 21:03");
 
         assertEquals(3, taskStorage.getSize());
+    }
+
+    @Test
+    void executeCommand_deleteOnlyTask_returnsEmptyMessageAndPersistsDeletion() throws IOException {
+        banyService.executeCommand("todo read book");
+
+        CommandResult result = banyService.executeCommand("delete 1");
+
+        assertEquals(CommandOutcome.SUCCESS, result.outcome());
+        assertEquals("Removed from your task list:" + System.lineSeparator()
+                        + "   [T][  ] read book" + System.lineSeparator()
+                        + "Your list is empty.", result.messages().get(0).text());
+        assertEquals(0, taskStorage.getSize());
+        assertEquals("Your list is empty.", banyService.executeCommand("list").messages().get(0).text());
+
+        TaskStorage reloadedStorage = new TaskStorage();
+        new TaskFileRepository(temporaryDirectory.resolve("bany.txt")).load(reloadedStorage);
+        assertEquals(0, reloadedStorage.getSize());
     }
 
     @Test

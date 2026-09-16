@@ -41,7 +41,7 @@ public class Responder {
      */
     public String respondAddTask(Task task, int size) {
         return String.format("Added to your task list:%n  %s%n"
-                + "Your list now holds %d tasks.", task, size);
+                + "Your list now holds %d %s.", task, size, size == 1 ? "task" : "tasks");
     }
 
     /**
@@ -149,8 +149,11 @@ public class Responder {
      * @return task-deleted response.
      */
     public String respondDeleteTask(Task task, int size) {
+        String remainingTasks = size == 0 ? "Your list is now empty."
+                : String.format("Your list now holds %d %s.", size, size == 1 ? "task" : "tasks");
+
         return String.format("Removed from your task list:%n   %s%n"
-                + "Your list now holds %d tasks.", task, size);
+                + "%s", task, remainingTasks);
     }
 
     /**
@@ -170,6 +173,9 @@ public class Responder {
      * @return formatted task-list response.
      */
     public String respondList(List<Task> listOfTasks) {
+        if (listOfTasks.isEmpty()) {
+            return "Your list is empty.";
+        }
         StringBuilder response = new StringBuilder("Your task list:");
         int count = 1;
         for (Task task : listOfTasks) {

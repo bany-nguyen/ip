@@ -1,1 +1,1 @@
-[{"type":"DEADLINE","description":"do homework","done":false,"tags":{"by":"22-09-2026 23:59"},"by":"22-09-2026 23:59"},{"type":"TODO","description":"run tonight","done":false,"tags":{}},{"type":"DEADLINE","description":"do homework","done":false,"tags":{"by":"23-09-2026 23:59"},"by":"23-09-2026 23:59"}]
+[{"type":"TODO","description":"run","done":false,"tags":{}}]

@@ -53,7 +53,7 @@ class ResponderTest {
     void taskResponses_includeTaskDetailsAndCounts() {
         assertEquals("Added to your task list:" + System.lineSeparator()
                         + "  [T][  ] Read book" + System.lineSeparator()
-                        + "Your list now holds 1 tasks.", responder.respondAddTask(task, 1));
+                        + "Your list now holds 1 task.", responder.respondAddTask(task, 1));
         assertEquals("Checked off:" + System.lineSeparator()
                         + "   [T][  ] Read book",
                 responder.respondMarkTask(task));
@@ -62,9 +62,35 @@ class ResponderTest {
                 responder.respondUnmarkTask(task));
         assertEquals("Removed from your task list:" + System.lineSeparator()
                         + "   [T][  ] Read book" + System.lineSeparator()
-                        + "Your list now holds 0 tasks.", responder.respondDeleteTask(task, 0));
+                        + "Your list is empty.", responder.respondDeleteTask(task, 0));
         assertEquals("Schedule refreshed for this task:" + System.lineSeparator()
                         + "   [T][  ] Read book", responder.respondRescheduleTask(task));
+    }
+
+    @Test
+    void respondAddTask_multipleTasks_usesPlural() {
+        assertEquals("Added to your task list:" + System.lineSeparator()
+                        + "  [T][  ] Read book" + System.lineSeparator()
+                        + "Your list now holds 2 tasks.", responder.respondAddTask(task, 2));
+    }
+
+    @Test
+    void respondDeleteTask_oneTaskRemaining_usesSingular() {
+        assertEquals("Removed from your task list:" + System.lineSeparator()
+                        + "   [T][  ] Read book" + System.lineSeparator()
+                        + "Your list now holds 1 task.", responder.respondDeleteTask(task, 1));
+    }
+
+    @Test
+    void respondDeleteTask_multipleTasksRemaining_usesPlural() {
+        assertEquals("Removed from your task list:" + System.lineSeparator()
+                        + "   [T][  ] Read book" + System.lineSeparator()
+                        + "Your list now holds 2 tasks.", responder.respondDeleteTask(task, 2));
+    }
+
+    @Test
+    void respondList_emptyList_returnsEmptyMessage() {
+        assertEquals("Your list is empty.", responder.respondList(List.of()));
     }
 
     @Test
