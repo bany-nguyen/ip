@@ -1,9 +1,31 @@
 .label {
-    -fx-background-color: linear-gradient(to bottom right, #00ffbf, #00ddff);
-    -fx-border-color: #d55e00 #009e73 #cc79a7 #0072b2;
-    -fx-border-width: 2px;
+    -fx-background-color: white;
     -fx-background-radius: 1em 1em 0 1em;
     -fx-border-radius: 1em 1em 0 1em;
+    -fx-border-color: gray;
+    -fx-border-width: 0.4px;
+    -fx-label-padding: 8px 12px;
+    -fx-alignment: center-left;
+    -fx-wrap-text: true;
+    -fx-font-size: 12pt;
+}
+
+.bot-label {
+    -fx-background-color: white;
+    -fx-background-radius: 1em 1em 1em 0;
+    -fx-border-radius: 1em 1em 1em 0;
+    -fx-label-padding: 8px 12px;
+    -fx-alignment: center-left;
+    -fx-wrap-text: true;
+}
+
+.user-label {
+    -fx-background-color: linear-gradient(to bottom right, #00ffbf, #00ddff);
+    -fx-background-radius: 1em 1em 0 1em;
+    -fx-border-radius: 1em 1em 0 1em;
+    -fx-padding: 8px 12px;
+    -fx-alignment: center-left;
+    -fx-wrap-text: true;
 }
 
 .reply-label {
@@ -12,8 +34,8 @@
 }
 
 /* Paste this below reply-label */
-.add-label {
-    -fx-background-color: yellow;
+.error-label {
+    -fx-background-color: rgba(255, 0, 0, 0.35);
 }
 
 .marked-label {

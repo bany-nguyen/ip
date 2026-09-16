@@ -2,6 +2,8 @@ package bany.gui;
 
 import java.io.IOException;
 
+import bany.commands.MessageLevel;
+import bany.commands.ResponseMessage;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -59,9 +61,20 @@ public class DialogBox extends HBox {
     }
 
     private void setUserStyle() {
-        dialog.setStyle("-fx-background-color: #98FB98;"
-                + "-fx-background-radius: 14;"
-                + "-fx-padding: 8;");
+        dialog.getStyleClass().add("user-label");
+    }
+
+    private void setBotStyle() {
+        dialog.getStyleClass().add("bot-label");
+    }
+
+    private void setBotStyle(MessageLevel level) {
+        dialog.getStyleClass().add("bot-label");
+        switch (level) {
+            case WARNING -> dialog.getStyleClass().add("warning-label");
+            case ERROR -> dialog.getStyleClass().add("error-label");
+            default -> dialog.getStyleClass().add("bot-label");
+        }
     }
 
     /**
@@ -80,12 +93,13 @@ public class DialogBox extends HBox {
     /**
      * Creates a left-aligned dialog box for a Bany response.
      *
-     * @param text response text to display.
+     * @param response response text to display.
      * @param image Bany avatar.
      * @return Bany-response dialog box.
      */
-    public static DialogBox getBotDialog(String text, Image image) {
-        var db = new DialogBox(text, image, FXML_PATH);
+    public static DialogBox getBotDialog(ResponseMessage response, Image image) {
+        var db = new DialogBox(response.text(), image, FXML_PATH);
+        db.setBotStyle(response.level());
         db.flip();
         return db;
     }

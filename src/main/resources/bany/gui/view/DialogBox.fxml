@@ -6,6 +6,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.Label?>
 <fx:root alignment="TOP_RIGHT"
+         spacing="8.0"
          maxHeight="1.7976931348623157E308"
          maxWidth="1.7976931348623157E308"
          prefWidth="400.0"
@@ -16,12 +17,10 @@
     <children>
         <Label fx:id="dialog"
                wrapText="true"
-               prefWidth="300"
+               prefWidth="300.0"
                maxWidth="300.0"
                textAlignment="JUSTIFY"
-               style="-fx-background-color: white;
-              -fx-background-radius: 14;
-              -fx-padding: 8;" />
+        />
         <ImageView fx:id="displayImage" fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true" />
     </children>
     <padding>

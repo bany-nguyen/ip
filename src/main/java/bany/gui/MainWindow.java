@@ -86,8 +86,9 @@ public class MainWindow extends AnchorPane {
         List<ResponseMessage> responses = commandResult.messages();
 
         for (ResponseMessage response : responses) {
+
             dialogContainer.getChildren().add(
-                    DialogBox.getBotDialog(response.text(), banyImage)
+                    DialogBox.getBotDialog(response, banyImage)
             );
 
         }
@@ -107,8 +108,11 @@ public class MainWindow extends AnchorPane {
 
     /** Adds Bany's initial greeting to the conversation history. */
     public void showWelcomeMessage() {
+        ResponseMessage welcomeResponse = ResponseMessage.info(
+                banyService.getWelcomeMessage().text());
+
         dialogContainer.getChildren().addAll(
-                DialogBox.getBotDialog(banyService.getWelcomeMessage().text(), banyImage)
+                DialogBox.getBotDialog(welcomeResponse, banyImage)
         );
     }
 }
