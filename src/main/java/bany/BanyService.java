@@ -64,7 +64,11 @@ public class BanyService {
         return command.execute(taskStorage, responder, taskFileRepository);
     }
 
-    /** Returns Bany's initial greeting as an informational response. */
+    /**
+     * Returns Bany's initial greeting as an informational response.
+     *
+     * @return the greeting message for a new conversation.
+     */
     public ResponseMessage getWelcomeMessage() {
         return ResponseMessage.info(
                 responder.respondWelcome());

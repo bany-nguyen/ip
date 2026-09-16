@@ -7,6 +7,10 @@ import bany.tasks.Task;
 /** Builds user-facing response strings for the Bany GUI. */
 public class Responder {
 
+    /** Creates the builder for Bany's user-facing messages. */
+    public Responder() {
+    }
+
     /**
      * Builds Bany's welcome message.
      *
@@ -234,6 +238,28 @@ public class Responder {
     public static class ErrorResponder {
         /** Creates the persistence-error response helper. */
         public ErrorResponder() {
+        }
+
+        /**
+         * Returns the warning shown when startup data cannot be loaded.
+         *
+         * @return the startup warning and recovery-file location.
+         */
+        public static String respondStartupFileWarning() {
+            return "Startup file cannot be read. "
+                    + "I will initiate an empty task list. "
+                    + "You can find the original startup file at data/report.";
+        }
+
+        /**
+         * Explains why commands are disabled when startup recovery cannot finish safely.
+         *
+         * @return the recovery failure message and suggested checks.
+         */
+        public static String respondStartupRecoveryError() {
+            return "Unable to archive the startup file or create data/bany.txt. "
+                    + "Commands are disabled to protect your data. "
+                    + "Check the data and report folders and their permissions, then restart Bany.";
         }
 
         /**

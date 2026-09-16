@@ -261,7 +261,7 @@ public abstract class Task {
         }
     }
 
-    /** Finds a tag index by its normalised name. */
+    /** Finds a tag index by its normalized name. */
     private static int findTagIndex(List<Tag> tags, String name) {
         for (int i = 0; i < tags.size(); i++) {
             if (tags.get(i).name().equals(name)) {
@@ -271,7 +271,7 @@ public abstract class Task {
         return -1;
     }
 
-    /** Normalises a name for case-insensitive tag lookup. */
+    /** Normalizes a name for case-insensitive tag lookup. */
     private static String normaliseTagName(String name) {
         Objects.requireNonNull(name, "Tag name cannot be null.");
         String normalisedName = name.trim().toLowerCase(Locale.ROOT);

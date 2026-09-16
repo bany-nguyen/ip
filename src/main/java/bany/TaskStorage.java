@@ -64,7 +64,7 @@ public class TaskStorage {
      * Returns the task at a zero-based list index.
      *
      * @param index zero-based task index.
-     * @return task at the requested index, or {@code null} if the index is invalid.
+     * @return an optional containing the task, or {@link Optional#empty()} if the index is invalid.
      */
     public Optional<Task> getTask(int index) {
         if (index < 0 || index >= taskList.size()) {

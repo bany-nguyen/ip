@@ -9,6 +9,10 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class Helper {
 
+    /** Creates a helper for Bany's command utilities. */
+    public Helper() {
+    }
+
     /**
      * Checks whether text can be parsed as a 32-bit signed integer.
      *
@@ -28,15 +32,17 @@ public class Helper {
     }
 
     /**
-     * Finds the allowed command with the smallest Levenshtein distance from
-     * the user's input.
+     * Finds a suggested command using a predefined mapping or the smallest
+     * Levenshtein distance from the user's input.
      *
-     * <p>Command matching is case-insensitive. If multiple commands have the
+     * <p>Command matching is case-insensitive. Predefined mappings from
+     * {@link #getCommonConfusionPair(String)}, such as SEARCH to FIND, take
+     * priority over distance matching. If multiple commands have the
      * same distance, the first command in {@link CommandCatalog#getAllCommands()}
      * is returned.</p>
      *
      * @param input command text entered by the user.
-     * @return the closest allowed command, or {@code null} for blank input.
+     * @return the preferred or closest allowed command, or {@code null} for null or blank input.
      */
     public static String getClosestWordMatch(String input) {
 

@@ -4,7 +4,7 @@ import bany.TaskFileRepository;
 import bany.TaskStorage;
 import bany.gui.Responder;
 
-/** Represents an unrecognised command and its optional suggestion. */
+/** Represents an unrecognized command and its optional suggestion. */
 public class InvalidCommand extends Command {
     /** Closest recognized command to suggest, if one was found. */
     private final String suggestion;

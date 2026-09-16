@@ -46,6 +46,10 @@ public class MainWindow extends AnchorPane {
     /** Avatar used for dialog boxes containing Bany responses. */
     private Image banyImage;
 
+    /** Creates the controller whose controls are subsequently injected by the FXML loader. */
+    public MainWindow() {
+    }
+
     /**
      * Loads dialog images and keeps the conversation scrolled to its newest entry.
      */
@@ -114,5 +118,20 @@ public class MainWindow extends AnchorPane {
         dialogContainer.getChildren().addAll(
                 DialogBox.getBotDialog(welcomeResponse, banyImage)
         );
+    }
+
+    /**
+     * Displays a startup warning or error using the message's existing GUI style.
+     *
+     * @param response startup message and its presentation level.
+     */
+    public void showStartupMessage(ResponseMessage response) {
+        dialogContainer.getChildren().add(DialogBox.getBotDialog(response, banyImage));
+    }
+
+    /** Prevents commands from overwriting startup data when recovery has failed. */
+    public void disableInput() {
+        sendButton.setDisable(true);
+        userInput.setDisable(true);
     }
 }

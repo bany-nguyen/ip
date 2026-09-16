@@ -42,6 +42,10 @@ class ResponderTest {
                 Responder.ErrorResponder.respondFileUpdateError());
         assertEquals("Error loading tasks from the history file!",
                 Responder.ErrorResponder.respondFileLoadError());
+        assertEquals("Startup file cannot be read. I will initiate an empty task list. "
+                        + "You can find the original startup file at data/report.",
+                Responder.ErrorResponder.respondStartupFileWarning());
+        assertTrue(Responder.ErrorResponder.respondStartupRecoveryError().contains("Commands are disabled"));
     }
 
     @Test

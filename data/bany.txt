@@ -1,1 +1,1 @@
-[{"type":"TODO","description":"run","done":false,"tags":{}}]
+[{"type":"TODO","description":"run","done":false,"tags":{}},{"type":"EVENT","description":"fight","done":false,"tags":{"from":"22-06-2026 12:00","to":"23-06-2026 21:00"},"from":"22-06-2026 12:00","to":"23-06-2026 21:00"}]

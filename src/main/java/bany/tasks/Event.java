@@ -177,7 +177,7 @@ public class Event extends Task {
         return DateTimeParser.createLocalDateTime(value);
     }
 
-    /** Finds a tag by its normalised name in a candidate list. */
+    /** Finds a tag by its normalized name in a candidate list. */
     private static Optional<Tag> findTag(List<Tag> candidate, String name) {
         return candidate.stream()
                 .filter(tag -> tag.name().equals(name))

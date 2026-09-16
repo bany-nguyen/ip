@@ -7,6 +7,7 @@ import bany.BanyService;
 import bany.TaskFileRepository;
 import bany.TaskStorage;
 import bany.commands.CommandParser;
+import bany.commands.ResponseMessage;
 import bany.utilities.CommandValidator;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -18,6 +19,10 @@ import javafx.stage.Stage;
  * Starts the JavaFX version of Bany and wires its shared dependencies together.
  */
 public class Main extends Application {
+    /** Creates the application instance launched by JavaFX. */
+    public Main() {
+    }
+
     /**
      * Loads the main-window layout, injects the command service, and shows the stage.
      *
@@ -38,9 +43,21 @@ public class Main extends Application {
             AnchorPane ap = fxmlLoader.load();
             Scene scene = new Scene(ap);
             stage.setScene(scene);
-            fxmlLoader.<MainWindow>getController().setBanyService(banyService);
-            repository.load(taskStorage);
-            fxmlLoader.<MainWindow>getController().showWelcomeMessage();
+            MainWindow mainWindow = fxmlLoader.getController();
+            mainWindow.setBanyService(banyService);
+            mainWindow.showWelcomeMessage();
+            try {
+                if (repository.loadWithRecovery(taskStorage, Path.of("data", "report"))) {
+                    mainWindow.showStartupMessage(ResponseMessage.warning(
+                            Responder.ErrorResponder.respondStartupFileWarning()));
+                }
+            } catch (IOException e) {
+                mainWindow.showStartupMessage(ResponseMessage.warning(
+                        Responder.ErrorResponder.respondStartupFileWarning()));
+                mainWindow.showStartupMessage(ResponseMessage.error(
+                        Responder.ErrorResponder.respondStartupRecoveryError()));
+                mainWindow.disableInput();
+            }
             stage.show();
 
         } catch (IOException e) {

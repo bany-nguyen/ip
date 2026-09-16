@@ -181,16 +181,19 @@ public class AddCommand extends Command {
         }
     }
 
+    /** Represents either a validated task or a message explaining why creation failed. */
     private sealed interface TaskCreationResult
             permits TaskCreationSuccess, TaskCreationFailure {
     }
 
+    /** Holds the validated task ready to be added to storage. */
     private record TaskCreationSuccess(Task task) implements TaskCreationResult {
         private TaskCreationSuccess {
             Objects.requireNonNull(task);
         }
     }
 
+    /** Holds the validation message to show when no task can be created. */
     private record TaskCreationFailure(String validationMessage)
             implements TaskCreationResult {
         private TaskCreationFailure {

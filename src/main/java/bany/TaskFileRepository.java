@@ -3,9 +3,11 @@ package bany;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,6 +37,40 @@ public class TaskFileRepository {
      */
     public TaskFileRepository(Path path) {
         this.path = Objects.requireNonNull(path, "Task file path cannot be null.");
+    }
+
+    /**
+     * Loads startup data, preserving an unreadable file before starting an empty list.
+     * Missing files retain the normal first-run behavior and do not trigger recovery.
+     *
+     * @param taskStorage storage to populate or reset after a load failure.
+     * @param reportDirectory directory in which to preserve unreadable files.
+     * @return true if the startup file was replaced after a load failure.
+     * @throws IOException if the original cannot be archived or the replacement cannot be created.
+     */
+    public boolean loadWithRecovery(TaskStorage taskStorage, Path reportDirectory) throws IOException {
+        Objects.requireNonNull(reportDirectory, "Report directory cannot be null.");
+        try {
+            load(taskStorage);
+            return false;
+        } catch (IOException loadFailure) {
+            taskStorage.replaceTasks(List.of());
+            Task.resetIdAllocator(1);
+            try {
+                if (Files.isDirectory(path)) {
+                    throw new IOException("The task file path points to a directory.");
+                }
+                Files.createDirectories(reportDirectory);
+                Path archivedFile = reportDirectory.resolve("bany-" + UUID.randomUUID() + ".txt");
+                // Never overwrite the source until its contents have been preserved.
+                Files.move(path, archivedFile);
+                Files.writeString(path, "[]", StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+                return true;
+            } catch (IOException recoveryFailure) {
+                recoveryFailure.addSuppressed(loadFailure);
+                throw recoveryFailure;
+            }
+        }
     }
 
     /**
@@ -166,7 +202,6 @@ public class TaskFileRepository {
      * @param reconstructedId runtime ID assigned according to file order.
      * @return reconstructed task.
      * @throws IOException if the object is malformed or contains invalid data.
-     * @throws InvalidTaskType if the saved type is unsupported.
      */
     private Task fromJson(JsonNode json, int reconstructedId) throws IOException {
         validateTaskJson(json);
@@ -234,7 +269,7 @@ public class TaskFileRepository {
                     throw new IOException("Event contains an invalid date-time.", e);
                 }
             default:
-                throw new InvalidTaskType("Unknown task type: " + type);
+                throw new IOException("Unknown task type: " + type);
         }
     }
 

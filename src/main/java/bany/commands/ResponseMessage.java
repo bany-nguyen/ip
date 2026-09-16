@@ -2,7 +2,12 @@ package bany.commands;
 
 import java.util.Objects;
 
-/** Represents one user-facing message and its presentation level. */
+/**
+ * Represents one user-facing message and its presentation level.
+ *
+ * @param level presentation level used to style the message.
+ * @param text nonblank text to display to the user.
+ */
 public record ResponseMessage(
         MessageLevel level,
         String text) {
@@ -21,17 +26,32 @@ public record ResponseMessage(
         }
     }
 
-    /** Creates an informational response message. */
+    /**
+     * Creates an informational response message.
+     *
+     * @param text nonblank text to display.
+     * @return an informational message containing the supplied text.
+     */
     public static ResponseMessage info(String text) {
         return new ResponseMessage(MessageLevel.INFO, text);
     }
 
-    /** Creates a warning response message. */
+    /**
+     * Creates a warning response message.
+     *
+     * @param text nonblank text to display.
+     * @return a warning message containing the supplied text.
+     */
     public static ResponseMessage warning(String text) {
         return new ResponseMessage(MessageLevel.WARNING, text);
     }
 
-    /** Creates an error response message. */
+    /**
+     * Creates an error response message.
+     *
+     * @param text nonblank text to display.
+     * @return an error message containing the supplied text.
+     */
     public static ResponseMessage error(String text) {
         return new ResponseMessage(MessageLevel.ERROR, text);
     }

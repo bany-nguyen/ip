@@ -33,7 +33,7 @@ public class InputParser {
      *
      * @param input complete command entered by the user.
      * @return an insertion-ordered map of keys to values.
-     * @throws IllegalArgumentException if {@code input} is null or blank.
+     * @throws IllegalArgumentException if {@code input} is null, blank, or contains an empty tag name.
      */
     public static Map<String, String> parse(String input) {
         if (input == null || input.isBlank()) {

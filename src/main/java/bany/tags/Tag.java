@@ -16,7 +16,7 @@ import java.util.Optional;
 public record Tag(String name, Optional<String> value) {
 
     /**
-     * Creates a validated tag and normalises its name for case-insensitive
+     * Creates a validated tag and normalizes its name for case-insensitive
      * lookup and duplicate detection.
      *
      * @param name tag name without the leading slash.

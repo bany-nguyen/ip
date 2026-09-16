@@ -15,7 +15,7 @@ public final class CommandCatalog {
     private static final Set<String> VALID_ACTION_COMMANDS = Set.of(
             "BYE", "LIST", "MARK", "UNMARK", "DELETE", "FIND", "RESCHEDULE");
 
-    /** All recognised commands in the order used for suggestions. */
+    /** All recognized commands in the order used for suggestions. */
     private static final List<String> ALL_COMMANDS = List.of(
             "TODO", "DEADLINE", "EVENT",
             "BYE", "LIST", "MARK", "UNMARK", "DELETE", "FIND", "RESCHEDULE");

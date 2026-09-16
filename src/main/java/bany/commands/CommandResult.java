@@ -28,28 +28,47 @@ public record CommandResult(
         }
     }
 
-    /** Creates a successful result containing informational or warning messages. */
+    /**
+     * Creates a successful result containing informational or warning messages.
+     *
+     * @param messages ordered messages to display.
+     * @return a result with the success outcome.
+     */
     public static CommandResult success(ResponseMessage... messages) {
         return new CommandResult(
                 List.of(messages), CommandOutcome.SUCCESS
         );
     }
 
-    /** Creates an error result containing messages that explain the failure. */
+    /**
+     * Creates an error result containing messages that explain the failure.
+     *
+     * @param messages ordered messages to display.
+     * @return a result with the error outcome.
+     */
     public static CommandResult error(ResponseMessage... messages) {
         return new CommandResult(
                 List.of(messages), CommandOutcome.ERROR
         );
     }
 
-    /** Creates a successful result that requests application exit after its messages are shown. */
+    /**
+     * Creates a successful result that requests application exit after its messages are shown.
+     *
+     * @param messages ordered messages to display before closing.
+     * @return a result with the exit outcome.
+     */
     public static CommandResult exit(ResponseMessage... messages) {
         return new CommandResult(
                 List.of(messages), CommandOutcome.EXIT
         );
     }
 
-    /** Returns whether the application should close after displaying this result. */
+    /**
+     * Returns whether the application should close after displaying this result.
+     *
+     * @return true if the outcome requests application exit.
+     */
     public boolean shouldExit() {
         return outcome == CommandOutcome.EXIT;
     }
