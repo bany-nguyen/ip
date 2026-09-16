@@ -18,8 +18,8 @@ public class Responder {
      */
     public String respondWelcome() {
         return """
-                Hello! I'm Bany.
-                What can I do for you?
+                Hi, I'm Bany.
+                Let's keep your tasks growing.
                 """;
     }
 
@@ -29,7 +29,7 @@ public class Responder {
      * @return goodbye message.
      */
     public String respondGoodbye() {
-        return "Bye. Hope to see you again soon!";
+        return "Until next time - your task list will be here when you're ready.";
     }
 
     /**
@@ -40,8 +40,8 @@ public class Responder {
      * @return task-added response.
      */
     public String respondAddTask(Task task, int size) {
-        return String.format("Got it. I've added this task:%n  %s%n"
-                + "Now you have %d tasks in the list.", task, size);
+        return String.format("Added to your task list:%n  %s%n"
+                + "Your list now holds %d tasks.", task, size);
     }
 
     /**
@@ -51,7 +51,7 @@ public class Responder {
      */
     public String respondInvalidTaskDescription() {
 
-        return "Task description cannot be blank!";
+        return "I need a task description before I can add it.";
     }
 
     /**
@@ -60,7 +60,7 @@ public class Responder {
      * @return invalid-tag message.
      */
     public String respondInvalidTaskInitiation() {
-        return "Your tags for the task do not match the requirements!";
+        return "I couldn't schedule that task because its required tags are missing or invalid.";
     }
 
     /**
@@ -69,7 +69,7 @@ public class Responder {
      * @return invalid-date-time message.
      */
     public String respondInvalidDateTime() {
-        return "Date-time must use the format dd-MM-yyyy HH:mm!";
+        return "Use the date-time format dd-MM-yyyy HH:mm.";
     }
 
     /**
@@ -78,7 +78,7 @@ public class Responder {
      * @return invalid-event-range message.
      */
     public String respondInvalidEventRange() {
-        return "An event's end date-time cannot be before its start date-time!";
+        return "An event must end after it begins.";
     }
 
     /**
@@ -88,7 +88,7 @@ public class Responder {
      * @return duplicate-tag message.
      */
     public String respondDuplicateTag(String tagName) {
-        return String.format("The tag /%s can only be used once!", tagName);
+        return String.format("Use the tag /%s only once.", tagName);
     }
 
     /**
@@ -97,8 +97,7 @@ public class Responder {
      * @return tag warning message.
      */
     public String respondTagWarning() {
-        return "Warning: the command contains extra tags or tags in an unexpected order.\n"
-                + "The task will still be added.";
+        return "I found extra or out-of-order tags. The task was still added.";
     }
 
     /**
@@ -107,8 +106,7 @@ public class Responder {
      * @return tag warning message for a reschedule command.
      */
     public String respondRescheduleTagWarning() {
-        return "Warning: the command contains extra tags or tags in an unexpected order.\n"
-                + "The task will still be rescheduled.";
+        return "I found extra or out-of-order tags. The task was still rescheduled.";
     }
 
     /**
@@ -119,8 +117,8 @@ public class Responder {
      * @return out-of-bounds response.
      */
     public String respondOutOfBoundIndex(String type, int size) {
-        return String.format("The task that you are trying to %s is not here!", type)
-                + String.format(" Please enter an integer between 1 and %d", size);
+        return String.format("I can't %s that task. Choose a valid task number from 1 to %d.",
+                type, size);
     }
 
     /**
@@ -130,7 +128,7 @@ public class Responder {
      * @return mark-task response.
      */
     public String respondMarkTask(Task task) {
-        return String.format("Nice! I've marked this task as done:%n   %s", task);
+        return String.format("Checked off:%n   %s", task);
     }
 
     /**
@@ -140,7 +138,7 @@ public class Responder {
      * @return unmark-task response.
      */
     public String respondUnmarkTask(Task task) {
-        return String.format("Nice! I've unmarked this task as done:%n   %s", task);
+        return String.format("Moved back to active tasks:%n   %s", task);
     }
 
     /**
@@ -151,8 +149,8 @@ public class Responder {
      * @return task-deleted response.
      */
     public String respondDeleteTask(Task task, int size) {
-        return String.format("Noted. I've removed this task:%n   %s%n"
-                + "Now you have %d tasks in the list.", task, size);
+        return String.format("Removed from your task list:%n   %s%n"
+                + "Your list now holds %d tasks.", task, size);
     }
 
     /**
@@ -162,7 +160,7 @@ public class Responder {
      * @return task-rescheduled response.
      */
     public String respondRescheduleTask(Task task) {
-        return String.format("Noted. I've rescheduled this task:%n   %s", task);
+        return String.format("Schedule refreshed for this task:%n   %s", task);
     }
 
     /**
@@ -172,7 +170,7 @@ public class Responder {
      * @return formatted task-list response.
      */
     public String respondList(List<Task> listOfTasks) {
-        StringBuilder response = new StringBuilder("Here are the tasks in your list:");
+        StringBuilder response = new StringBuilder("Your task list:");
         int count = 1;
         for (Task task : listOfTasks) {
             response.append(System.lineSeparator())
@@ -190,7 +188,7 @@ public class Responder {
      * @return invalid-command message.
      */
     public String respondInvalidCommand() {
-        return "Invalid command. Please try again.";
+        return "I didn't recognize that command. Please try again.";
     }
 
     /**
@@ -203,7 +201,7 @@ public class Responder {
         if (closestCommand == null) {
             return respondInvalidCommand();
         }
-        return String.format("Command not found. Do you mean %s?", closestCommand);
+        return String.format("I didn't recognize that command. Did you mean %s?", closestCommand);
     }
 
     /**
@@ -212,7 +210,7 @@ public class Responder {
      * @return no-match message.
      */
     public String respondNoSuchTask() {
-        return "Your query does not match any task in the current task list!";
+        return "No tasks on your list match that search.";
     }
 
     /**
@@ -222,8 +220,7 @@ public class Responder {
      * @return formatted matching-tasks response.
      */
     public String respondMatchedTasks(List<Task> matchedTasks) {
-        StringBuilder response = new StringBuilder(
-                "Here are the matching tasks in your list:");
+        StringBuilder response = new StringBuilder("Tasks matching your search:");
         int count = 1;
         for (Task task : matchedTasks) {
             response.append(System.lineSeparator())
@@ -246,9 +243,9 @@ public class Responder {
          * @return the startup warning and recovery-file location.
          */
         public static String respondStartupFileWarning() {
-            return "Startup file cannot be read. "
-                    + "I will initiate an empty task list. "
-                    + "You can find the original startup file at data/report.";
+            return "I couldn't read the startup file. "
+                    + "I'll begin with an empty task list. "
+                    + "The original file is available at data/report.";
         }
 
         /**
@@ -257,7 +254,7 @@ public class Responder {
          * @return the recovery failure message and suggested checks.
          */
         public static String respondStartupRecoveryError() {
-            return "Unable to archive the startup file or create data/bany.txt. "
+            return "I couldn't archive the startup file or create data/bany.txt. "
                     + "Commands are disabled to protect your data. "
                     + "Check the data and report folders and their permissions, then restart Bany.";
         }
@@ -268,7 +265,7 @@ public class Responder {
          * @return file-update-error message.
          */
         public static String respondFileUpdateError() {
-            return "Error writing task to history file!";
+            return "I couldn't save your task list.";
         }
 
         /**
@@ -277,7 +274,7 @@ public class Responder {
          * @return file-load-error message.
          */
         public static String respondFileLoadError() {
-            return "Error loading tasks from the history file!";
+            return "I couldn't load your task list.";
         }
     }
 }
