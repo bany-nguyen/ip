@@ -14,6 +14,8 @@ list
 
 Commands and tag names are not case-sensitive. Dates and times must use the 24-hour format `dd-MM-yyyy HH:mm`, for example `05-10-2026 09:30`.
 
+Tag names must not contain `command` or `description`, ignoring case. For example, `/command`, `/subcommand`, and `/taskDescription` are rejected. These words are allowed in task descriptions and tag values.
+
 ## Manage tasks
 
 ### Add a to-do
@@ -51,6 +53,8 @@ list
 ```
 
 Use `find WORDS` to show tasks whose descriptions contain that text. Searches are case-sensitive.
+
+Search results keep the numbers from the full task list. Use those numbers to mark, reschedule, or delete a match. Numbers can change after deleting a task, so run `list` or `find` again to see the current numbers.
 
 ```text
 find report

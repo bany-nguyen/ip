@@ -1,6 +1,7 @@
 package bany.gui;
 
 import java.util.List;
+import java.util.Map;
 
 import bany.tasks.Task;
 
@@ -220,19 +221,20 @@ public class Responder {
     }
 
     /**
-     * Builds a response containing tasks matching a search query.
+     * Builds a response containing search matches and their original list numbers.
+     * Entries are displayed in the supplied map's iteration order, without renumbering.
      *
-     * @param matchedTasks tasks that matched the query.
+     * @param matchedTasks matches keyed by their one-based positions in the complete task list,
+     *     in display order.
      * @return formatted matching-tasks response.
      */
-    public String respondMatchedTasks(List<Task> matchedTasks) {
+    public String respondMatchedTasks(Map<Integer, Task> matchedTasks) {
         StringBuilder response = new StringBuilder("Tasks matching your search:");
-        int count = 1;
-        for (Task task : matchedTasks) {
+        for (Map.Entry<Integer, Task> match : matchedTasks.entrySet()) {
             response.append(System.lineSeparator())
-                    .append(count++)
-                    .append('.')
-                    .append(task);
+                    .append(match.getKey())
+                    .append(". ")
+                    .append(match.getValue());
         }
         return response.toString();
     }

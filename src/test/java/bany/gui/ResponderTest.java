@@ -3,7 +3,9 @@ package bany.gui;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,7 +64,7 @@ class ResponderTest {
                 responder.respondUnmarkTask(task));
         assertEquals("Removed from your task list:" + System.lineSeparator()
                         + "   [T][  ] Read book" + System.lineSeparator()
-                        + "Your list is empty.", responder.respondDeleteTask(task, 0));
+                        + "Your list is now empty.", responder.respondDeleteTask(task, 0));
         assertEquals("Schedule refreshed for this task:" + System.lineSeparator()
                         + "   [T][  ] Read book", responder.respondRescheduleTask(task));
     }
@@ -102,8 +104,20 @@ class ResponderTest {
                         + "2. [T][  ] Submit assignment",
                 responder.respondList(List.of(task, secondTask)));
         assertEquals("Tasks matching your search:" + System.lineSeparator()
-                        + "1.[T][  ] Read book",
-                responder.respondMatchedTasks(List.of(task)));
+                        + "1. [T][  ] Read book",
+                responder.respondMatchedTasks(Map.of(1, task)));
+    }
+
+    @Test
+    void respondMatchedTasks_preservesNonConsecutiveListNumbers() {
+        Map<Integer, Task> matches = new LinkedHashMap<>();
+        matches.put(2, task);
+        matches.put(4, new ToDo("Submit assignment", 10));
+
+        assertEquals("Tasks matching your search:" + System.lineSeparator()
+                        + "2. [T][  ] Read book" + System.lineSeparator()
+                        + "4. [T][  ] Submit assignment",
+                responder.respondMatchedTasks(matches));
     }
 
     @Test

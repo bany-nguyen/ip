@@ -1,6 +1,6 @@
 package bany.commands;
 
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,7 +9,7 @@ import bany.TaskStorage;
 import bany.gui.Responder;
 import bany.tasks.Task;
 
-/** Finds tasks whose descriptions contain the search text. */
+/** Finds tasks whose descriptions contain the search text, preserving their current list numbers. */
 public class FindCommand extends Command {
     /** Parsed command values containing the search description. */
     private final Map<String, String> values;
@@ -25,6 +25,8 @@ public class FindCommand extends Command {
 
     /**
      * Searches task descriptions and returns either matches or an error response.
+     * Matching is case-sensitive. Each match keeps its one-based position in the
+     * complete task list so that task commands act on the displayed task number.
      *
      * @return command outcome containing matching tasks or an error message.
      */
@@ -39,10 +41,12 @@ public class FindCommand extends Command {
                             responder.respondInvalidCommand()));
         }
 
-        List<Task> matches = new ArrayList<>();
-        for (Task task : tasks.getTasks()) {
+        Map<Integer, Task> matches = new LinkedHashMap<>();
+        List<Task> allTasks = tasks.getTasks();
+        for (int index = 0; index < allTasks.size(); index++) {
+            Task task = allTasks.get(index);
             if (task.getDescription().contains(query)) {
-                matches.add(task);
+                matches.put(index + 1, task);
             }
         }
 

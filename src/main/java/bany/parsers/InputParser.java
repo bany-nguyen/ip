@@ -13,7 +13,9 @@ import java.util.Map;
  * {@code <command> <description> /<tag> <tag description> ...}.
  * The returned map contains lowercase keys. The value for the
  * {@code command} key is uppercase, while descriptions and tag values
- * retain the user's original casing.</p>
+ * retain the user's original casing. Tag names must not contain
+ * {@code command} or {@code description}, ignoring case, so tags cannot
+ * overwrite the command fields.</p>
  */
 public class InputParser {
     /** Creates an input parser. */
@@ -33,7 +35,8 @@ public class InputParser {
      *
      * @param input complete command entered by the user.
      * @return an insertion-ordered map of keys to values.
-     * @throws IllegalArgumentException if {@code input} is null, blank, or contains an empty tag name.
+     * @throws IllegalArgumentException if {@code input} is null or blank, or a tag name
+     *     is empty or contains {@code command} or {@code description}, ignoring case.
      */
     public static Map<String, String> parse(String input) {
         if (input == null || input.isBlank()) {
@@ -67,11 +70,13 @@ public class InputParser {
 
     /**
      * Returns the tag names in the order in which they appear in the input.
-     * Repeated tag names are retained in the returned list.
+     * Repeated tag names are retained in the returned list. The same tag-name
+     * restrictions as {@link #parse(String)} apply.
      *
      * @param input complete command entered by the user.
      * @return lowercase tag names in input order.
-     * @throws IllegalArgumentException if {@code input} is null, blank, or malformed.
+     * @throws IllegalArgumentException if {@code input} is null or blank, or a tag name
+     *     is empty or contains {@code command} or {@code description}, ignoring case.
      */
     public static List<String> getTagNames(String input) {
         if (input == null || input.isBlank()) {
@@ -111,7 +116,7 @@ public class InputParser {
         }
     }
 
-    /** Parses each slash-prefixed tag once for all parser consumers. */
+    /** Parses tags for both public methods, rejecting names that contain reserved command fields. */
     private static List<ParsedTag> parseTagEntries(String arguments, int firstTag) {
         List<ParsedTag> tags = new ArrayList<>();
         int tagStart = firstTag;
@@ -131,6 +136,10 @@ public class InputParser {
 
             String tagName = arguments.substring(tagNameStart, tagNameEnd)
                     .toLowerCase(Locale.ROOT);
+            if (tagName.contains("command") || tagName.contains("description")) {
+                throw new IllegalArgumentException(
+                        "Tag names must not contain command or description.");
+            }
             int valueStart = tagNameEnd;
             while (valueStart < arguments.length()
                     && Character.isWhitespace(arguments.charAt(valueStart))) {

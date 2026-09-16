@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -76,7 +78,7 @@ class BanyServiceTest {
         assertEquals(CommandOutcome.SUCCESS, result.outcome());
         assertEquals("Removed from your task list:" + System.lineSeparator()
                         + "   [T][  ] read book" + System.lineSeparator()
-                        + "Your list is empty.", result.messages().get(0).text());
+                        + "Your list is now empty.", result.messages().get(0).text());
         assertEquals(0, taskStorage.getSize());
         assertEquals("Your list is empty.", banyService.executeCommand("list").messages().get(0).text());
 
@@ -152,6 +154,75 @@ class BanyServiceTest {
         banyService.executeCommand("reminder read book");
 
         assertEquals(0, taskStorage.getSize());
+    }
+
+    @Test
+    void executeCommand_find_preservesListNumbersAndActionsTargetTheMatch() {
+        banyService.executeCommand("todo groceries");
+        banyService.executeCommand("todo report draft");
+        banyService.executeCommand("todo laundry");
+        banyService.executeCommand("todo report review");
+
+        CommandResult result = banyService.executeCommand("find report");
+
+        assertEquals(CommandOutcome.SUCCESS, result.outcome());
+        assertEquals("Tasks matching your search:" + System.lineSeparator()
+                + "2. [T][  ] report draft" + System.lineSeparator()
+                + "4. [T][  ] report review", result.messages().getFirst().text());
+        banyService.executeCommand("mark 2");
+        assertFalse(taskStorage.getTask(0).orElseThrow().isDone());
+        assertTrue(taskStorage.getTask(1).orElseThrow().isDone());
+        banyService.executeCommand("delete 4");
+        assertEquals(List.of("groceries", "report draft", "laundry"),
+                taskStorage.getTasks().stream().map(task -> task.getDescription()).toList());
+    }
+
+    @Test
+    void executeCommand_findAfterDeletion_usesCurrentPositionsInsteadOfTaskIds() {
+        banyService.executeCommand("todo old task");
+        banyService.executeCommand("todo groceries");
+        banyService.executeCommand("todo report");
+        banyService.executeCommand("delete 1");
+
+        CommandResult result = banyService.executeCommand("find report");
+
+        assertEquals("Tasks matching your search:" + System.lineSeparator()
+                + "2. [T][  ] report", result.messages().getFirst().text());
+    }
+
+    @Test
+    void executeCommand_findWithoutMatches_returnsNoMatchError() {
+        banyService.executeCommand("todo groceries");
+
+        CommandResult result = banyService.executeCommand("find report");
+
+        assertEquals(CommandOutcome.ERROR, result.outcome());
+        assertEquals("No tasks on your list match that search.", result.messages().getFirst().text());
+        assertEquals(1, taskStorage.getSize());
+    }
+
+    @Test
+    void executeCommand_reservedTags_cannotExitOrChangeTasksOrSavedData() throws IOException {
+        banyService.executeCommand("todo groceries");
+        banyService.executeCommand("todo report");
+        Path taskFile = temporaryDirectory.resolve("bany.txt");
+        String originalData = Files.readString(taskFile);
+
+        for (String input : List.of("todo example /command BYE", "delete 1 /description 2",
+                "mark 1 /DESCRIPTION 2", "reschedule 1 /description 2 /note urgent",
+                "todo example /CoMmAnD DELETE /description 2",
+                "todo example /subCOMMAND value", "delete 1 /description_suffix 2",
+                "reschedule 1 /preDescriptionPost urgent")) {
+            CommandResult result = banyService.executeCommand(input);
+
+            assertEquals(CommandOutcome.ERROR, result.outcome(), input);
+            assertFalse(result.shouldExit(), input);
+            assertEquals(List.of("groceries", "report"),
+                    taskStorage.getTasks().stream().map(task -> task.getDescription()).toList(), input);
+            assertTrue(taskStorage.getTasks().stream().noneMatch(task -> task.isDone()), input);
+            assertTrue(taskStorage.getTasks().stream().allMatch(task -> task.getTags().isEmpty()), input);
+            assertEquals(originalData, Files.readString(taskFile), input);
+        }
     }
 
     @Test
