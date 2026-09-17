@@ -14,6 +14,8 @@ list
 
 Commands and tag names are not case-sensitive. Dates and times must use the 24-hour format `dd-MM-yyyy HH:mm`, for example `05-10-2026 09:30`.
 
+Use real calendar dates: `31-02-2026 09:30` is invalid. Years must have four digits and be between `0001` and `9999`.
+
 Tag names must not contain `command` or `description`, ignoring case. For example, `/command`, `/subcommand`, and `/taskDescription` are rejected. These words are allowed in task descriptions and tag values.
 
 ## Manage tasks
