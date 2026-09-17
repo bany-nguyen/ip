@@ -92,7 +92,7 @@ Use `bye` to close Bany.
 bye
 ```
 
-Your tasks are stored automatically in `data/bany.txt`. If Bany does not understand a command, check its spelling and format, then try again.
+Your tasks are stored automatically in `data/bany.txt`, relative to the directory from which Bany runs. Start Bany from the same directory each time to use the same task file. If Bany does not understand a command, check its spelling and format, then try again.
 
 ## Command summary
 
