@@ -1,6 +1,8 @@
-# Bany project template
+# Bany
 
-This is a project template for a greenfield Java project. This is the starting point for the Bany chatbot project.
+Bany is a JavaFX task manager that accepts typed commands to track to-dos, deadlines, and events.
+
+See the [User Guide](docs/README.md) for command formats and examples.
 
 ## Setting up in Intellij
 
