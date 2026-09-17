@@ -54,7 +54,7 @@ Use `list` to see every task. Each task has a number starting from 1; use that n
 list
 ```
 
-Use `find WORDS` to show tasks whose descriptions contain that text. Searches are case-sensitive.
+Use `find WORDS` to show tasks whose descriptions contain that text. Searches are case-sensitive. For example, `find report` matches `submit report` but not `submit Report`. Multiple words are matched as one continuous phrase, so `find project meeting` searches for that exact phrase within each description.
 
 Search results keep the numbers from the full task list. Use those numbers to mark, reschedule, or delete a match. Numbers can change after deleting a task, so run `list` or `find` again to see the current numbers.
 
